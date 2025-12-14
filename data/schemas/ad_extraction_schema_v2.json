@@ -1,0 +1,142 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AdExtraction",
+  "version": "2.0",
+  "description": "Simple extraction schema for basic LLM. All fields are direct copy or keyword spotting. No reasoning.",
+
+  "type": "object",
+  "properties": {
+
+    "title": {
+      "type": "string",
+      "extraction_prompt": "Copy the job title exactly as written"
+    },
+
+    "description": {
+      "type": "string",
+      "extraction_prompt": "Copy the main description paragraph"
+    },
+
+    "budget_low": {
+      "type": "number",
+      "extraction_prompt": "What is the lowest price number mentioned? Write just the number."
+    },
+
+    "budget_high": {
+      "type": "number",
+      "extraction_prompt": "What is the highest price number mentioned? Write just the number."
+    },
+
+    "currency": {
+      "type": "string",
+      "extraction_prompt": "What currency is mentioned? Examples: USD, INR, GBP, EUR, AUD"
+    },
+
+    "is_hourly": {
+      "type": "boolean",
+      "extraction_prompt": "Does the ad mention 'per hour' or 'hourly'? Yes or No."
+    },
+
+    "is_fixed": {
+      "type": "boolean",
+      "extraction_prompt": "Does the ad mention 'fixed price' or 'fixed bid' or 'paid on delivery'? Yes or No."
+    },
+
+    "deadline_text": {
+      "type": "string",
+      "extraction_prompt": "Copy any text about deadlines or time limits"
+    },
+
+    "hours_mentioned": {
+      "type": "array",
+      "items": {"type": "string"},
+      "extraction_prompt": "List any mentions of hours, like '2-3 hours' or '25-40 hours'"
+    },
+
+    "requirements": {
+      "type": "array",
+      "items": {"type": "string"},
+      "extraction_prompt": "List each requirement or task bullet point, one per line"
+    },
+
+    "deliverables": {
+      "type": "array",
+      "items": {"type": "string"},
+      "extraction_prompt": "List what the client wants delivered or created"
+    },
+
+    "files_mentioned": {
+      "type": "array",
+      "items": {"type": "string"},
+      "extraction_prompt": "List any file types mentioned: PDF, Excel, CSV, Word, SQL, JSON, TXT, etc."
+    },
+
+    "tools_mentioned": {
+      "type": "array",
+      "items": {"type": "string"},
+      "extraction_prompt": "List any software or tools mentioned: Excel, Google Sheets, VBA, Python, MySQL, etc."
+    },
+
+    "client_will_provide": {
+      "type": "array",
+      "items": {"type": "string"},
+      "extraction_prompt": "List anything the client says they will provide or send"
+    },
+
+    "not_included": {
+      "type": "array",
+      "items": {"type": "string"},
+      "extraction_prompt": "List anything marked as 'out of scope' or 'not included'"
+    },
+
+    "words_simple": {
+      "type": "boolean",
+      "extraction_prompt": "Does the ad contain words like 'simple', 'easy', 'quick', 'basic', or 'straightforward'? Yes or No."
+    },
+
+    "words_complex": {
+      "type": "boolean",
+      "extraction_prompt": "Does the ad contain words like 'complex', 'advanced', 'expert', or 'sophisticated'? Yes or No."
+    },
+
+    "words_urgent": {
+      "type": "boolean",
+      "extraction_prompt": "Does the ad contain words like 'urgent', 'ASAP', 'rush', or 'immediately'? Yes or No."
+    },
+
+    "words_ongoing": {
+      "type": "boolean",
+      "extraction_prompt": "Does the ad contain words like 'ongoing', 'recurring', 'daily', 'weekly', or 'long-term'? Yes or No."
+    },
+
+    "has_api": {
+      "type": "boolean",
+      "extraction_prompt": "Does the ad mention 'API' or 'APIs'? Yes or No."
+    },
+
+    "has_database": {
+      "type": "boolean",
+      "extraction_prompt": "Does the ad mention 'database', 'SQL', 'MySQL', or 'PostgreSQL'? Yes or No."
+    },
+
+    "has_web": {
+      "type": "boolean",
+      "extraction_prompt": "Does the ad mention 'HTML', 'website', 'web page', or 'interface'? Yes or No."
+    },
+
+    "has_automation": {
+      "type": "boolean",
+      "extraction_prompt": "Does the ad mention 'automate', 'automation', 'VBA', or 'macro'? Yes or No."
+    },
+
+    "experience_level": {
+      "type": "string",
+      "extraction_prompt": "If the ad states an experience level (Entry, Intermediate, Expert), copy it. Otherwise write 'not stated'."
+    },
+
+    "raw_text": {
+      "type": "string",
+      "extraction_prompt": "Copy the entire ad text"
+    }
+  }
+}
