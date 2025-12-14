@@ -1,163 +1,205 @@
 {
-  "schema_version": "1.0",
-  "description": "Structured representation of freelancer ads for Task Assessor evaluation",
+  "schema_version": "2.0",
+  "description": "Structured representation of freelancer ads for Task Assessor - focused on agent system feasibility evaluation",
   "parsed_at": "2025-12-14",
+  "schema_notes": {
+    "feasibility_focus": "Evaluates whether our agent system can execute this task type, assuming synthetic data generation for inputs",
+    "removed": ["data_dependency - handled separately"],
+    "added": ["agent_capabilities", "output_verification", "resource_model", "execution_risks"]
+  },
   "ads": [
     {
       "id": "ad_001",
       "title": "Sales Data Visualization",
-      "status": "open",
       "platform": "freelancer",
-      "posted": {
-        "relative": "about 9 hours ago",
-        "deadline_relative": "6 days"
-      },
+      "status": "open",
       "pricing": {
         "type": "hourly",
         "min": 100,
         "max": 400,
-        "currency": "INR",
-        "payment_terms": null
+        "currency": "INR"
       },
       "description": "Create pie charts and bar graphs to visualize sales data from an Excel sheet.",
       "requirements": [
         "Visualize revenue by product",
         "Group data by individual products"
       ],
-      "skills_required": [
-        "Excel proficiency",
-        "Data visualization",
-        "Chart/graph creation"
-      ],
       "deliverables": [
         "Pie charts showing revenue by product",
         "Bar graphs with grouped data"
       ],
-      "task_assessment": {
-        "category": "data_visualization",
-        "complexity": "low",
-        "tooling": ["excel", "charting"],
-        "automation_potential": "high",
-        "estimated_effort_hours": {
-          "min": 1,
-          "max": 3
+      "feasibility": {
+        "agent_capabilities_required": [
+          "excel_file_manipulation",
+          "chart_generation",
+          "data_aggregation"
+        ],
+        "output_type": "file",
+        "output_format": ["xlsx", "png"],
+        "output_determinism": "semi_deterministic",
+        "determinism_notes": "Chart layout/styling has degrees of freedom; data accuracy is deterministic",
+        "verification_method": {
+          "type": "programmatic",
+          "approach": "Validate chart data points match source aggregations",
+          "automated": true
         },
-        "key_constraints": [],
-        "data_dependency": "client_provided_excel",
-        "requires_human_judgment": false
+        "resource_model": {
+          "estimated_llm_calls": 3,
+          "estimated_tool_calls": 10,
+          "token_intensity": "low",
+          "primary_cost_driver": "file_operations"
+        },
+        "decomposable": true,
+        "subtasks": [
+          "Parse input data structure",
+          "Aggregate revenue by product",
+          "Generate pie chart",
+          "Generate bar graph",
+          "Format and export"
+        ],
+        "external_tools_required": ["excel_library", "charting_library"],
+        "execution_risks": [
+          "Chart styling may not match client aesthetic preferences"
+        ],
+        "success_criteria_clarity": "high",
+        "feasibility_score": 0.95,
+        "category": "data_visualization"
       }
     },
     {
       "id": "ad_002",
       "title": "PDF-Word Data Entry Conversion",
-      "status": "open",
       "platform": "freelancer",
-      "posted": {
-        "relative": "about 13 hours ago",
-        "deadline_relative": "6 days"
-      },
+      "status": "open",
       "pricing": {
         "type": "hourly",
         "min": 750,
         "max": 1250,
-        "currency": "INR",
-        "payment_terms": "hourly or per file"
+        "currency": "INR"
       },
       "description": "Copy text from PDF and Word files into a structured Excel sheet, checking for typos and applying correct column structure with consistency formatting.",
       "requirements": [
         "Copy text accurately from PDF/Word to Excel",
         "Check for typos",
         "Apply correct column structure per template",
-        "Final pass for consistency and formatting",
-        "Ongoing/recurring work in small packages"
-      ],
-      "skills_required": [
-        "Basic Excel skills",
-        "Attention to detail",
-        "Reliability",
-        "Prompt communication"
+        "Final pass for consistency and formatting"
       ],
       "deliverables": [
         "Completed Excel template per batch",
         "Error-free data entry"
       ],
-      "task_assessment": {
-        "category": "data_entry",
-        "complexity": "low",
-        "tooling": ["excel", "pdf_reader", "word"],
-        "automation_potential": "very_high",
-        "estimated_effort_hours": {
-          "min": 1,
-          "max": 4,
-          "note": "per batch"
+      "feasibility": {
+        "agent_capabilities_required": [
+          "pdf_text_extraction",
+          "docx_parsing",
+          "excel_writing",
+          "text_validation",
+          "template_mapping"
+        ],
+        "output_type": "file",
+        "output_format": ["xlsx"],
+        "output_determinism": "deterministic",
+        "determinism_notes": "Direct extraction and mapping - single correct output",
+        "verification_method": {
+          "type": "programmatic",
+          "approach": "Diff source text against output cells; spell-check pass",
+          "automated": true
         },
-        "key_constraints": ["template_provided", "recurring_work"],
-        "data_dependency": "client_provided_documents",
-        "requires_human_judgment": false
+        "resource_model": {
+          "estimated_llm_calls": 2,
+          "estimated_tool_calls": 15,
+          "token_intensity": "medium",
+          "primary_cost_driver": "document_parsing"
+        },
+        "decomposable": true,
+        "subtasks": [
+          "Extract text from source documents",
+          "Parse template structure",
+          "Map extracted data to template columns",
+          "Spell-check and typo detection",
+          "Format and validate output"
+        ],
+        "external_tools_required": ["pdf_parser", "docx_parser", "excel_library"],
+        "execution_risks": [
+          "PDF extraction quality varies by PDF structure",
+          "Template interpretation ambiguity"
+        ],
+        "success_criteria_clarity": "high",
+        "feasibility_score": 0.90,
+        "category": "data_entry"
       }
     },
     {
       "id": "ad_003",
       "title": "Google Sheets Data Entry Cleanup",
-      "status": "open",
       "platform": "freelancer",
-      "posted": {
-        "relative": "about 13 hours ago",
-        "deadline_relative": "6 days"
-      },
+      "status": "open",
       "pricing": {
         "type": "hourly",
         "min": 750,
         "max": 1250,
-        "currency": "INR",
-        "payment_terms": null
+        "currency": "INR"
       },
       "description": "Copy mixed data (numbers and text) into a Google Sheet using pre-defined template, with categorization, labeling, and basic formulas (SUM, COUNT).",
       "requirements": [
         "Transfer data to correct columns in template",
         "Clear labeling",
         "Apply basic formulas (SUM, COUNT)",
-        "Add comments for unclear items rather than guessing",
         "Clean, logical left-to-right layout"
-      ],
-      "skills_required": [
-        "Google Sheets",
-        "Basic formulas",
-        "Data categorization",
-        "Attention to detail"
       ],
       "deliverables": [
         "Single Google Sheet populated, categorized, and formula-checked"
       ],
-      "task_assessment": {
-        "category": "data_entry",
-        "complexity": "low",
-        "tooling": ["google_sheets"],
-        "automation_potential": "very_high",
-        "estimated_effort_hours": {
-          "min": 1,
-          "max": 3
+      "feasibility": {
+        "agent_capabilities_required": [
+          "google_sheets_api",
+          "data_categorization",
+          "formula_insertion",
+          "template_mapping"
+        ],
+        "output_type": "cloud_document",
+        "output_format": ["google_sheets"],
+        "output_determinism": "deterministic",
+        "determinism_notes": "Template-driven mapping with fixed formulas",
+        "verification_method": {
+          "type": "programmatic",
+          "approach": "Validate formulas compute correctly; check data placement",
+          "automated": true
         },
-        "key_constraints": ["template_provided", "accuracy_over_speed"],
-        "data_dependency": "client_provided_data",
-        "requires_human_judgment": false
+        "resource_model": {
+          "estimated_llm_calls": 2,
+          "estimated_tool_calls": 20,
+          "token_intensity": "low",
+          "primary_cost_driver": "api_calls"
+        },
+        "decomposable": true,
+        "subtasks": [
+          "Parse input data",
+          "Identify template column structure",
+          "Map data to columns",
+          "Insert SUM/COUNT formulas",
+          "Validate and format"
+        ],
+        "external_tools_required": ["google_sheets_api"],
+        "execution_risks": [
+          "API rate limits",
+          "Categorization logic may need clarification"
+        ],
+        "success_criteria_clarity": "high",
+        "feasibility_score": 0.92,
+        "category": "data_entry"
       }
     },
     {
       "id": "ad_004",
       "title": "Excel VBA Automation Support",
-      "status": "open",
       "platform": "freelancer",
-      "posted": {
-        "relative": "about 21 hours ago",
-        "deadline_relative": "6 days"
-      },
+      "status": "open",
       "pricing": {
         "type": "fixed",
         "min": 10,
         "max": 30,
-        "currency": "AUD",
-        "payment_terms": "paid on delivery"
+        "currency": "AUD"
       },
       "description": "Automate spreadsheet workflow (data import, transformation, final reporting) into a single VBA-driven workbook.",
       "requirements": [
@@ -166,101 +208,137 @@
         "Final reporting in single workbook",
         "VBA-driven workflow"
       ],
-      "skills_required": [
-        "Excel VBA",
-        "Workflow automation",
-        "Data transformation"
-      ],
       "deliverables": [
         "Single VBA-driven Excel workbook automating full workflow"
       ],
-      "task_assessment": {
-        "category": "automation",
-        "complexity": "medium",
-        "tooling": ["excel", "vba"],
-        "automation_potential": "high",
-        "estimated_effort_hours": {
-          "min": 2,
-          "max": 3,
-          "client_estimate": "2-3 hrs max"
+      "feasibility": {
+        "agent_capabilities_required": [
+          "vba_code_generation",
+          "excel_macro_structure",
+          "workflow_analysis",
+          "code_testing"
+        ],
+        "output_type": "file",
+        "output_format": ["xlsm"],
+        "output_determinism": "generative",
+        "determinism_notes": "Multiple valid VBA implementations; functional correctness is verifiable",
+        "verification_method": {
+          "type": "functional_test",
+          "approach": "Execute VBA with test data; validate output matches expected transformation",
+          "automated": true
         },
-        "key_constraints": ["simple_task_per_client"],
-        "data_dependency": "client_provided_spreadsheets",
-        "requires_human_judgment": false
+        "resource_model": {
+          "estimated_llm_calls": 5,
+          "estimated_tool_calls": 15,
+          "token_intensity": "medium",
+          "primary_cost_driver": "code_generation"
+        },
+        "decomposable": true,
+        "subtasks": [
+          "Analyze current workflow",
+          "Design VBA module structure",
+          "Generate import routine",
+          "Generate transformation logic",
+          "Generate reporting output",
+          "Test and debug"
+        ],
+        "external_tools_required": ["excel_vba_runtime", "xlsm_writer"],
+        "execution_risks": [
+          "Workflow requirements underspecified",
+          "VBA debugging without interactive Excel"
+        ],
+        "success_criteria_clarity": "medium",
+        "feasibility_score": 0.80,
+        "category": "automation"
       }
     },
     {
       "id": "ad_005",
       "title": "Astrology Event Database & Interface",
-      "status": "open",
       "platform": "freelancer",
-      "posted": {
-        "relative": "about 12 hours ago",
-        "deadline_relative": "6 days"
-      },
+      "status": "open",
       "pricing": {
         "type": "fixed",
         "min": 12500,
         "max": 37500,
-        "currency": "INR",
-        "payment_terms": "paid on delivery"
+        "currency": "INR"
       },
       "description": "Build a normalized database for astrological events with HTML data-entry interface, search functionality, and export capabilities.",
       "requirements": [
         "Normalized database schema with keys, indexes, ERD",
         "MySQL-compatible structure",
         "HTML/CSS/vanilla JS data entry interface",
-        "Form for add/edit/delete events (date, time, event type, notes)",
+        "Form for add/edit/delete events",
         "Search console with dropdown and chronological results",
         "SQL file and CSV dump for export",
         "Migration notes for other DB engines",
         "Sample data seeding scripts"
       ],
-      "skills_required": [
-        "Database design (MySQL)",
-        "HTML/CSS",
-        "Vanilla JavaScript",
-        "PHP (optional, for form handling)",
-        "SQL export/import"
-      ],
       "deliverables": [
-        "Normalized database schema with ERD",
+        "Database schema with ERD",
         "HTML data entry interface",
-        "Search functionality by event type",
+        "Search functionality",
         ".sql import file",
         "CSV dump",
         "Migration documentation",
         "Seeding scripts"
       ],
-      "task_assessment": {
-        "category": "full_stack_development",
-        "complexity": "medium-high",
-        "tooling": ["mysql", "html", "css", "javascript", "php"],
-        "automation_potential": "high",
-        "estimated_effort_hours": {
-          "min": 15,
-          "max": 40
+      "feasibility": {
+        "agent_capabilities_required": [
+          "sql_schema_design",
+          "html_generation",
+          "css_styling",
+          "vanilla_js_coding",
+          "php_scripting",
+          "documentation_writing"
+        ],
+        "output_type": "multi_file_project",
+        "output_format": ["sql", "html", "css", "js", "php", "csv", "md"],
+        "output_determinism": "generative",
+        "determinism_notes": "Multiple valid designs; requirements constrain but don't fully specify",
+        "verification_method": {
+          "type": "integration_test",
+          "approach": "Import SQL, serve HTML, test CRUD operations, verify search returns correct results",
+          "automated": true
         },
-        "key_constraints": ["no_heavy_frameworks", "plain_html_pages", "portable", "shared_host_compatible"],
-        "data_dependency": "schema_design_required",
-        "requires_human_judgment": false
+        "resource_model": {
+          "estimated_llm_calls": 15,
+          "estimated_tool_calls": 50,
+          "token_intensity": "high",
+          "primary_cost_driver": "code_generation"
+        },
+        "decomposable": true,
+        "subtasks": [
+          "Design normalized schema",
+          "Generate ERD documentation",
+          "Create SQL DDL",
+          "Build HTML form interface",
+          "Implement JS form handling",
+          "Create search functionality",
+          "Generate export scripts",
+          "Write migration docs",
+          "Create seed data"
+        ],
+        "external_tools_required": ["mysql", "web_server", "php_runtime"],
+        "execution_risks": [
+          "UI/UX subjective preferences",
+          "Integration testing requires runtime environment"
+        ],
+        "success_criteria_clarity": "high",
+        "feasibility_score": 0.85,
+        "category": "full_stack_development"
       }
     },
     {
       "id": "ad_006",
       "title": "Personal Expense Categorization & Budgeting",
-      "status": "open",
       "platform": "freelancer",
-      "posted": {
-        "relative": "1 day ago",
-        "deadline_relative": "5 days"
-      },
+      "status": "open",
       "pricing": {
         "type": "hourly",
         "min": 100,
         "max": 400,
-        "currency": "INR",
-        "payment_terms": null
+        "currency": "INR"
       },
       "description": "Daily expense categorization in Google Sheets plus building a budgeting dashboard with weekly/monthly summaries and budget-vs-actual tracking.",
       "requirements": [
@@ -269,51 +347,66 @@
         "Weekly and monthly summaries",
         "Budget-vs-actual tracking per category",
         "Dashboard highlighting overspend",
-        "Loom video or written documentation of formulas"
-      ],
-      "skills_required": [
-        "Google Sheets",
-        "Data categorization",
-        "Dashboard creation",
-        "Formula documentation"
+        "Documentation of formulas"
       ],
       "deliverables": [
         "Categorized expense sheet",
         "Budgeting dashboard with summaries",
-        "Documentation (video or written)"
+        "Documentation"
       ],
-      "task_assessment": {
-        "category": "spreadsheet_dashboard",
-        "complexity": "medium",
-        "tooling": ["google_sheets"],
-        "automation_potential": "medium",
-        "estimated_effort_hours": {
-          "min": 3,
-          "max": 8,
-          "note": "initial setup, plus daily maintenance"
+      "feasibility": {
+        "agent_capabilities_required": [
+          "google_sheets_api",
+          "expense_classification",
+          "dashboard_formulas",
+          "conditional_formatting",
+          "documentation_writing"
+        ],
+        "output_type": "cloud_document",
+        "output_format": ["google_sheets", "text"],
+        "output_determinism": "semi_deterministic",
+        "determinism_notes": "Dashboard structure is generative; categorization rules can be defined deterministically",
+        "verification_method": {
+          "type": "programmatic",
+          "approach": "Validate categorization accuracy against rules; check formula correctness",
+          "automated": true
         },
-        "key_constraints": ["daily_recurring_task", "start_this_week"],
-        "data_dependency": "client_provided_google_sheet",
-        "requires_human_judgment": true,
-        "human_judgment_reason": "categorization decisions may require context"
+        "resource_model": {
+          "estimated_llm_calls": 5,
+          "estimated_tool_calls": 30,
+          "token_intensity": "medium",
+          "primary_cost_driver": "classification_logic"
+        },
+        "decomposable": true,
+        "subtasks": [
+          "Define categorization rules",
+          "Build categorization logic",
+          "Create summary formulas",
+          "Build budget-vs-actual tracking",
+          "Add conditional formatting for overspend",
+          "Write documentation"
+        ],
+        "external_tools_required": ["google_sheets_api"],
+        "execution_risks": [
+          "Categorization ambiguity (e.g., grocery store restaurant)",
+          "Recurring task model - needs scheduling capability"
+        ],
+        "success_criteria_clarity": "medium",
+        "feasibility_score": 0.82,
+        "feasibility_notes": "Initial setup high feasibility; daily recurring execution requires orchestration",
+        "category": "spreadsheet_dashboard"
       }
     },
     {
       "id": "ad_007",
       "title": "Excel Sheet Modification",
-      "status": "open",
       "platform": "freelancer",
-      "posted": {
-        "relative": "1 day ago",
-        "deadline_relative": "5 days"
-      },
+      "status": "open",
       "pricing": {
         "type": "fixed",
         "min": 10,
         "max": 30,
-        "currency": "USD",
-        "payment_terms": "paid on delivery",
-        "bonus": "tip for completion in less than a day"
+        "currency": "USD"
       },
       "description": "Add @ prefix to Column A values, sort by text length (shortest to longest), remove duplicates, preserve special characters and column alignment.",
       "requirements": [
@@ -323,61 +416,69 @@
         "Remove duplicate rows after @ addition",
         "Preserve special characters in other columns"
       ],
-      "skills_required": [
-        "Excel",
-        "Text manipulation",
-        "Sorting",
-        "Deduplication"
-      ],
       "deliverables": [
         "Single cleaned CSV with @ prefix, duplicates removed, sorted by length"
       ],
-      "task_assessment": {
-        "category": "data_transformation",
-        "complexity": "low",
-        "tooling": ["excel", "csv"],
-        "automation_potential": "very_high",
-        "estimated_effort_hours": {
-          "min": 0.25,
-          "max": 1,
-          "client_estimate": "probably 3 minutes for someone who knows excel"
+      "feasibility": {
+        "agent_capabilities_required": [
+          "csv_parsing",
+          "string_manipulation",
+          "sorting",
+          "deduplication",
+          "csv_writing"
+        ],
+        "output_type": "file",
+        "output_format": ["csv"],
+        "output_determinism": "deterministic",
+        "determinism_notes": "Fully algorithmic - single correct output given input",
+        "verification_method": {
+          "type": "programmatic",
+          "approach": "Verify all Col A values start with @; verify sort order; verify no duplicates; verify row alignment",
+          "automated": true
         },
-        "key_constraints": ["fast_turnaround_preferred", "file_not_yet_attached"],
-        "data_dependency": "client_provided_csv",
-        "requires_human_judgment": false
+        "resource_model": {
+          "estimated_llm_calls": 1,
+          "estimated_tool_calls": 5,
+          "token_intensity": "very_low",
+          "primary_cost_driver": "minimal"
+        },
+        "decomposable": true,
+        "subtasks": [
+          "Parse CSV",
+          "Add @ prefix to Column A",
+          "Remove duplicates",
+          "Sort by Column A length",
+          "Write output CSV"
+        ],
+        "external_tools_required": ["csv_library"],
+        "execution_risks": [
+          "Edge cases with special characters or encoding"
+        ],
+        "success_criteria_clarity": "very_high",
+        "feasibility_score": 0.98,
+        "category": "data_transformation"
       }
     },
     {
       "id": "ad_008",
       "title": "Recruitment Data Cleanup & Insights",
-      "status": "open",
       "platform": "freelancer",
-      "posted": {
-        "relative": "1 day ago",
-        "deadline_relative": "5 days"
-      },
+      "status": "open",
       "pricing": {
         "type": "hourly",
         "min": 15,
         "max": 25,
-        "currency": "USD",
-        "payment_terms": null
+        "currency": "USD"
       },
       "description": "Clean and restructure a 47-row hiring tracker, standardize data, apply formatting, then analyze for insights with narrative summary and visualizations.",
       "requirements": [
         "Audit and flag data-type mismatches, duplicates, missing values",
         "Fix inconsistent naming conventions",
-        "Restructure columns for uniform date/candidate/stage formats",
+        "Restructure columns for uniform formats",
         "Apply filters, conditional highlights, tidy headers",
         "Produce 1-2 page narrative summary of insights",
-        "Create pivot tables and charts in separate worksheet",
+        "Create pivot tables and charts",
         "Document all changes made"
-      ],
-      "skills_required": [
-        "Advanced Excel (Power Query, pivot tables, lookups)",
-        "Data cleaning",
-        "Data analysis",
-        "Report writing"
       ],
       "deliverables": [
         "Cleaned, standardized Excel tracker",
@@ -385,37 +486,64 @@
         "Pivot tables and charts",
         "Change log"
       ],
-      "task_assessment": {
-        "category": "data_analysis",
-        "complexity": "medium",
-        "tooling": ["excel", "power_query", "pivot_tables"],
-        "automation_potential": "medium",
-        "estimated_effort_hours": {
-          "min": 4,
-          "max": 10
+      "feasibility": {
+        "agent_capabilities_required": [
+          "data_profiling",
+          "data_cleaning",
+          "standardization_rules",
+          "pivot_table_generation",
+          "chart_generation",
+          "narrative_writing",
+          "excel_formatting"
+        ],
+        "output_type": "multi_file",
+        "output_format": ["xlsx", "docx"],
+        "output_determinism": "semi_deterministic",
+        "determinism_notes": "Cleaning rules are deterministic; insight narrative is generative",
+        "verification_method": {
+          "type": "hybrid",
+          "approach": "Programmatic validation of data quality; LLM review of narrative coherence",
+          "automated": "partial"
         },
-        "key_constraints": ["47_rows", "validation_required", "plain_english_findings"],
-        "data_dependency": "client_provided_excel",
-        "requires_human_judgment": true,
-        "human_judgment_reason": "insight generation and recommendations require interpretation"
+        "resource_model": {
+          "estimated_llm_calls": 8,
+          "estimated_tool_calls": 40,
+          "token_intensity": "high",
+          "primary_cost_driver": "insight_generation"
+        },
+        "decomposable": true,
+        "subtasks": [
+          "Profile data quality issues",
+          "Define standardization rules",
+          "Apply data cleaning",
+          "Restructure columns",
+          "Apply formatting",
+          "Generate pivot tables",
+          "Create charts",
+          "Analyze patterns",
+          "Write narrative summary",
+          "Document changes"
+        ],
+        "external_tools_required": ["excel_library", "docx_writer"],
+        "execution_risks": [
+          "Insight quality depends on data patterns",
+          "Narrative may not match client's domain expertise expectations"
+        ],
+        "success_criteria_clarity": "medium",
+        "feasibility_score": 0.78,
+        "category": "data_analysis"
       }
     },
     {
       "id": "ad_009",
       "title": "Word Docs to Excel Workbook",
-      "status": "open",
       "platform": "freelancer",
-      "posted": {
-        "relative": "1 day ago",
-        "deadline_relative": "5 days"
-      },
+      "status": "open",
       "pricing": {
         "type": "fixed",
         "min": 10,
         "max": 30,
-        "currency": "USD",
-        "payment_terms": "paid on delivery",
-        "per_unit": "$5-$15 per document"
+        "currency": "USD"
       },
       "description": "Convert Word documents into a multi-sheet Excel workbook with data validation, simple formulas, cell protection, and professional formatting.",
       "requirements": [
@@ -425,48 +553,66 @@
         "Simple formulas (subtotals, averages, date differences)",
         "Cell protection",
         "Tab naming matching document headings",
-        "Professional table formatting",
-        "Mirror wording, headings, instructional text"
-      ],
-      "skills_required": [
-        "Excel",
-        "Data validation",
-        "Formula creation",
-        "Document conversion"
+        "Professional table formatting"
       ],
       "deliverables": [
         ".xlsx workbook mirroring Word templates"
       ],
-      "task_assessment": {
-        "category": "document_conversion",
-        "complexity": "medium",
-        "tooling": ["excel", "word"],
-        "automation_potential": "high",
-        "estimated_effort_hours": {
-          "min": 1,
-          "max": 4,
-          "note": "depends on number and complexity of documents"
+      "feasibility": {
+        "agent_capabilities_required": [
+          "docx_parsing",
+          "document_structure_analysis",
+          "excel_multi_sheet_generation",
+          "data_validation_setup",
+          "formula_insertion",
+          "cell_protection",
+          "formatting"
+        ],
+        "output_type": "file",
+        "output_format": ["xlsx"],
+        "output_determinism": "semi_deterministic",
+        "determinism_notes": "Structure mapping is deterministic; formatting choices have degrees of freedom",
+        "verification_method": {
+          "type": "structural",
+          "approach": "Verify sheet count matches sections; validate formulas; check data validation rules",
+          "automated": true
         },
-        "key_constraints": ["no_macros", "user_friendly_for_non_excel_users"],
-        "data_dependency": "client_provided_word_docs",
-        "requires_human_judgment": false
+        "resource_model": {
+          "estimated_llm_calls": 4,
+          "estimated_tool_calls": 25,
+          "token_intensity": "medium",
+          "primary_cost_driver": "document_analysis"
+        },
+        "decomposable": true,
+        "subtasks": [
+          "Parse Word document structure",
+          "Identify sections and headings",
+          "Create sheet structure",
+          "Map content to cells",
+          "Add data validation",
+          "Insert formulas",
+          "Apply protection",
+          "Format professionally"
+        ],
+        "external_tools_required": ["docx_parser", "excel_library"],
+        "execution_risks": [
+          "Complex Word formatting may not map cleanly",
+          "Formula placement inference"
+        ],
+        "success_criteria_clarity": "high",
+        "feasibility_score": 0.85,
+        "category": "document_conversion"
       }
     },
     {
       "id": "ad_010",
       "title": "Excel Spreadsheet Dashboard",
-      "status": "awarded",
       "platform": "peopleperhour",
-      "posted": {
-        "relative": "3 weeks ago",
-        "proposals": 43
-      },
+      "status": "awarded",
       "pricing": {
         "type": "fixed",
         "amount": 350,
-        "currency": "GBP",
-        "usd_approx": 468,
-        "payment_terms": null
+        "currency": "GBP"
       },
       "description": "Create a two-sheet Excel dashboard with auto-updating reports from pasted data, including pie charts, financial forecasts, and filterable tables.",
       "requirements": [
@@ -474,55 +620,78 @@
         "Sheet 2: Data paste area for system exports",
         "Auto-update on new data entry",
         "Profitable vs Not Profitable pie chart",
-        "Financial Forecast stacked graph (fees + extras) with target line",
+        "Financial Forecast stacked graph with target line",
         "Cumulative bar graphs for financial year",
-        "Cases by Mortgage Type table (count, total, average)",
-        "Cases by Advisor table (count, profitable/not profitable, total fees, average)",
+        "Cases by Mortgage Type table",
+        "Cases by Advisor table",
         "Completed cases table for selected period",
-        "Toggle for last week/month/custom date range",
+        "Toggle for date range selection",
         "Filter buttons for mortgage type and advisor",
         "Support full year of data without formula adjustments",
         "Company branding colors"
       ],
-      "skills_required": [
-        "Advanced Excel",
-        "Dashboard design",
-        "Dynamic charts",
-        "Data filtering",
-        "Conditional formatting"
-      ],
       "deliverables": [
         "Excel workbook with dashboard and data sheet"
       ],
-      "task_assessment": {
-        "category": "spreadsheet_dashboard",
-        "complexity": "high",
-        "tooling": ["excel", "advanced_formulas", "charting"],
-        "automation_potential": "high",
-        "estimated_effort_hours": {
-          "min": 15,
-          "max": 30
+      "feasibility": {
+        "agent_capabilities_required": [
+          "advanced_excel_formulas",
+          "dynamic_named_ranges",
+          "chart_generation",
+          "pivot_tables",
+          "conditional_formatting",
+          "form_controls",
+          "dashboard_layout"
+        ],
+        "output_type": "file",
+        "output_format": ["xlsx"],
+        "output_determinism": "generative",
+        "determinism_notes": "Multiple valid dashboard designs; functional requirements constrain but don't fully specify",
+        "verification_method": {
+          "type": "functional_test",
+          "approach": "Load test data; verify charts update; test filters; verify calculations",
+          "automated": true
         },
-        "key_constraints": ["no_formula_adjustments_needed", "high_quality_finish", "dynamic_filtering"],
-        "data_dependency": "client_provided_data_format",
-        "requires_human_judgment": false
+        "resource_model": {
+          "estimated_llm_calls": 12,
+          "estimated_tool_calls": 60,
+          "token_intensity": "high",
+          "primary_cost_driver": "complex_formula_generation"
+        },
+        "decomposable": true,
+        "subtasks": [
+          "Design data sheet structure",
+          "Create dynamic named ranges",
+          "Build profitability pie chart",
+          "Build financial forecast graph",
+          "Build cumulative bar graphs",
+          "Create mortgage type summary table",
+          "Create advisor summary table",
+          "Build completed cases table",
+          "Implement date range toggle",
+          "Implement filter buttons",
+          "Apply branding and formatting"
+        ],
+        "external_tools_required": ["excel_library"],
+        "execution_risks": [
+          "Complex formula interactions",
+          "Filter button implementation without VBA is tricky",
+          "Branding colors unspecified"
+        ],
+        "success_criteria_clarity": "high",
+        "feasibility_score": 0.75,
+        "category": "spreadsheet_dashboard"
       }
     },
     {
       "id": "ad_011",
       "title": "URLs to PDFs",
-      "status": "awarded",
       "platform": "peopleperhour",
-      "posted": {
-        "relative": "6 days ago",
-        "proposals": 13
-      },
+      "status": "awarded",
       "pricing": {
         "type": "fixed",
         "amount": 66,
-        "currency": "GBP",
-        "usd_approx": 88,
-        "payment_terms": null
+        "currency": "GBP"
       },
       "description": "Convert 125 URLs to clean, readable PDFs, combine into master PDF, with proper formatting and organized file delivery.",
       "requirements": [
@@ -535,46 +704,64 @@
         "Combine all PDFs into one master PDF",
         "Organized folder delivery"
       ],
-      "skills_required": [
-        "Web scraping/capture",
-        "PDF generation",
-        "PDF merging",
-        "File organization"
-      ],
       "deliverables": [
         "125 individual PDFs",
         "1 master combined PDF",
         "Organized folder structure"
       ],
-      "task_assessment": {
-        "category": "web_to_document",
-        "complexity": "low-medium",
-        "tooling": ["browser", "pdf_tools", "automation_scripts"],
-        "automation_potential": "very_high",
-        "estimated_effort_hours": {
-          "min": 3,
-          "max": 8
+      "feasibility": {
+        "agent_capabilities_required": [
+          "web_page_rendering",
+          "pdf_generation",
+          "pdf_merging",
+          "file_organization",
+          "title_extraction"
+        ],
+        "output_type": "multi_file",
+        "output_format": ["pdf", "folder_structure"],
+        "output_determinism": "semi_deterministic",
+        "determinism_notes": "Page rendering is deterministic given viewport; some pages may have dynamic content",
+        "verification_method": {
+          "type": "programmatic",
+          "approach": "Verify 125 PDFs exist; check file sizes > 0; verify master PDF page count; spot-check rendering",
+          "automated": "mostly"
         },
-        "key_constraints": ["125_urls", "desktop_view_only", "quality_formatting"],
-        "data_dependency": "client_provided_url_list",
-        "requires_human_judgment": false
+        "resource_model": {
+          "estimated_llm_calls": 2,
+          "estimated_tool_calls": 130,
+          "token_intensity": "low",
+          "primary_cost_driver": "web_rendering_operations"
+        },
+        "decomposable": true,
+        "subtasks": [
+          "Parse URL list",
+          "For each URL: render desktop view",
+          "For each URL: extract title for filename",
+          "For each URL: generate PDF",
+          "Merge all PDFs into master",
+          "Organize folder structure"
+        ],
+        "external_tools_required": ["headless_browser", "pdf_library"],
+        "execution_risks": [
+          "Dynamic page content / lazy loading",
+          "Anti-bot protections",
+          "Page layout variations"
+        ],
+        "success_criteria_clarity": "high",
+        "feasibility_score": 0.88,
+        "category": "web_to_document"
       }
     },
     {
       "id": "ad_012",
       "title": "Google Sheets Data Validation + INDIRECT expert",
-      "status": "awarded",
       "platform": "peopleperhour",
-      "posted": {
-        "relative": "3 days ago",
-        "proposals": 3
-      },
+      "status": "awarded",
       "pricing": {
         "type": "fixed",
         "amount": null,
         "currency": null,
-        "payment_terms": null,
-        "note": "10-minute fix"
+        "notes": "10-minute fix"
       },
       "description": "Fix dependent dropdowns in Google Sheets using INDIRECT function with named ranges, resolving 'Please enter a valid range' error.",
       "requirements": [
@@ -583,45 +770,53 @@
         "Working INDIRECT formula or workaround",
         "Must work with 2025 Google Sheets quirks"
       ],
-      "skills_required": [
-        "Google Sheets",
-        "INDIRECT function",
-        "Data validation",
-        "Named ranges"
-      ],
       "deliverables": [
         "Working formula or workaround for dependent dropdowns"
       ],
-      "task_assessment": {
-        "category": "spreadsheet_formula",
-        "complexity": "low",
-        "tooling": ["google_sheets"],
-        "automation_potential": "low",
-        "estimated_effort_hours": {
-          "min": 0.1,
-          "max": 0.5,
-          "client_estimate": "10 minutes"
+      "feasibility": {
+        "agent_capabilities_required": [
+          "google_sheets_expertise",
+          "indirect_function_knowledge",
+          "data_validation_api",
+          "debugging"
+        ],
+        "output_type": "formula",
+        "output_format": ["google_sheets_formula", "instructions"],
+        "output_determinism": "deterministic",
+        "determinism_notes": "Specific technical solution exists; may have multiple valid approaches",
+        "verification_method": {
+          "type": "functional_test",
+          "approach": "Apply formula; test dropdown dependency works",
+          "automated": true
         },
-        "key_constraints": ["specific_technical_issue", "quick_fix"],
-        "data_dependency": "client_provided_sheet",
-        "requires_human_judgment": false
+        "resource_model": {
+          "estimated_llm_calls": 2,
+          "estimated_tool_calls": 5,
+          "token_intensity": "very_low",
+          "primary_cost_driver": "knowledge_retrieval"
+        },
+        "decomposable": false,
+        "subtasks": null,
+        "external_tools_required": ["google_sheets_api"],
+        "execution_risks": [
+          "Google Sheets API limitations",
+          "Undocumented platform quirks"
+        ],
+        "success_criteria_clarity": "very_high",
+        "feasibility_score": 0.90,
+        "category": "spreadsheet_formula"
       }
     },
     {
       "id": "ad_013",
       "title": "Data Entry from Handwritten Notes",
-      "status": "open",
       "platform": "freelancer",
-      "posted": {
-        "relative": "2 days ago",
-        "deadline_relative": "5 days"
-      },
+      "status": "open",
       "pricing": {
         "type": "fixed",
         "min": 10,
         "max": 30,
-        "currency": "USD",
-        "payment_terms": "paid on delivery"
+        "currency": "USD"
       },
       "description": "Transcribe handwritten notes into Microsoft Word with formatted tables, capturing information exactly as written with spelling consistency checks.",
       "requirements": [
@@ -633,48 +828,65 @@
         "Highlight and comment on unclear handwriting",
         "Progress updates"
       ],
-      "skills_required": [
-        "Microsoft Word",
-        "Data entry",
-        "Table formatting",
-        "Attention to detail"
-      ],
       "deliverables": [
         "Single .docx file with uniform tables",
         "Change log noting ambiguous words flagged"
       ],
-      "task_assessment": {
-        "category": "transcription",
-        "complexity": "medium",
-        "tooling": ["word", "ocr_potentially"],
-        "automation_potential": "low",
-        "estimated_effort_hours": {
-          "min": 2,
-          "max": 10,
-          "note": "depends on volume and legibility"
+      "feasibility": {
+        "agent_capabilities_required": [
+          "handwriting_recognition_ocr",
+          "docx_generation",
+          "table_formatting",
+          "spell_checking",
+          "uncertainty_flagging"
+        ],
+        "output_type": "file",
+        "output_format": ["docx"],
+        "output_determinism": "probabilistic",
+        "determinism_notes": "OCR accuracy varies; handwriting interpretation has inherent uncertainty",
+        "verification_method": {
+          "type": "hybrid",
+          "approach": "OCR confidence scores; spell-check validation; manual spot-check for accuracy",
+          "automated": "partial"
         },
-        "key_constraints": ["handwritten_source", "accuracy_over_speed"],
-        "data_dependency": "client_provided_handwritten_notes",
-        "requires_human_judgment": true,
-        "human_judgment_reason": "interpreting handwritten text"
+        "resource_model": {
+          "estimated_llm_calls": 10,
+          "estimated_tool_calls": 25,
+          "token_intensity": "high",
+          "primary_cost_driver": "ocr_processing"
+        },
+        "decomposable": true,
+        "subtasks": [
+          "OCR handwritten images",
+          "Parse recognized text",
+          "Structure into table format",
+          "Spell-check entries",
+          "Flag low-confidence recognitions",
+          "Format Word document",
+          "Generate change log"
+        ],
+        "external_tools_required": ["ocr_service", "docx_library"],
+        "execution_risks": [
+          "Handwriting legibility varies dramatically",
+          "Domain-specific terms may not OCR well",
+          "Error rate may exceed client expectations"
+        ],
+        "success_criteria_clarity": "medium",
+        "feasibility_score": 0.60,
+        "feasibility_notes": "Highly dependent on handwriting quality; flagging uncertainty is key risk mitigation",
+        "category": "transcription"
       }
     },
     {
       "id": "ad_014",
       "title": "PDF Text Data Entry",
-      "status": "open",
       "platform": "freelancer",
-      "posted": {
-        "relative": "2 days ago",
-        "deadline_relative": "5 days"
-      },
+      "status": "open",
       "pricing": {
         "type": "fixed",
         "min": 12500,
         "max": 37500,
-        "currency": "INR",
-        "payment_terms": "paid on delivery",
-        "note": "listed as $500 USD in header"
+        "currency": "INR"
       },
       "description": "Convert PDF files to plain text (.txt) with accurate transcription, no formatting needed.",
       "requirements": [
@@ -683,51 +895,59 @@
         "Deliver as clean, unformatted TXT files",
         "Name files exactly like originals"
       ],
-      "skills_required": [
-        "Data entry",
-        "PDF reading",
-        "Text extraction",
-        "Attention to detail"
-      ],
       "deliverables": [
         "One .txt file per PDF, matching source word-for-word"
       ],
-      "task_assessment": {
-        "category": "transcription",
-        "complexity": "low",
-        "tooling": ["pdf_reader", "text_editor"],
-        "automation_potential": "very_high",
-        "estimated_effort_hours": {
-          "min": 2,
-          "max": 20,
-          "note": "depends on PDF count and complexity"
+      "feasibility": {
+        "agent_capabilities_required": [
+          "pdf_text_extraction",
+          "text_validation",
+          "file_operations"
+        ],
+        "output_type": "multi_file",
+        "output_format": ["txt"],
+        "output_determinism": "deterministic",
+        "determinism_notes": "Text extraction from text-based PDFs is deterministic",
+        "verification_method": {
+          "type": "programmatic",
+          "approach": "Re-extract and diff; character count validation",
+          "automated": true
         },
-        "key_constraints": ["text_only_no_tables", "exact_filename_matching"],
-        "data_dependency": "client_provided_pdfs",
-        "requires_human_judgment": false
+        "resource_model": {
+          "estimated_llm_calls": 1,
+          "estimated_tool_calls": 10,
+          "token_intensity": "very_low",
+          "primary_cost_driver": "pdf_parsing"
+        },
+        "decomposable": true,
+        "subtasks": [
+          "Parse each PDF",
+          "Extract text content",
+          "Validate extraction completeness",
+          "Write to .txt file",
+          "Verify filename matches source"
+        ],
+        "external_tools_required": ["pdf_parser"],
+        "execution_risks": [
+          "Scanned PDFs require OCR (different problem)",
+          "Complex layouts may extract in wrong order"
+        ],
+        "success_criteria_clarity": "very_high",
+        "feasibility_score": 0.95,
+        "feasibility_notes": "Assumes text-based PDFs; scanned PDFs would lower score significantly",
+        "category": "transcription"
       }
     },
     {
       "id": "ad_015",
       "title": "Fixed-Bid Research Project: Golf Playable Hours Analysis",
-      "status": "open",
       "platform": "freelancer",
-      "posted": {
-        "relative": null,
-        "deadline_relative": null
-      },
+      "status": "open",
       "pricing": {
         "type": "fixed",
-        "base_effort_hours": {
-          "min": 25,
-          "max": 40
-        },
-        "incremental_effort_hours": {
-          "min": 4,
-          "max": 6
-        },
-        "currency": null,
-        "payment_terms": "fixed bid, separate base + incremental pricing"
+        "structure": "base_plus_incremental",
+        "base_hours": {"min": 25, "max": 40},
+        "incremental_hours": {"min": 4, "max": 6}
       },
       "description": "Research project using historical weather data (NOAA or commercial APIs) to estimate annual golf playable hours for Chicago with methodology for adding additional cities.",
       "requirements": [
@@ -740,13 +960,6 @@
         "Excel workbook with outputs",
         "1-2 page executive summary"
       ],
-      "skills_required": [
-        "Weather/climate data analysis",
-        "NOAA or commercial weather API familiarity",
-        "Excel",
-        "Research methodology",
-        "Technical writing"
-      ],
       "deliverables": [
         "Weather data source recommendation summary",
         "Documented methodology",
@@ -756,32 +969,6 @@
         "Excel workbook",
         "Executive summary (1-2 pages)"
       ],
-      "task_assessment": {
-        "category": "research_analysis",
-        "complexity": "medium-high",
-        "tooling": ["excel", "weather_apis", "noaa_data"],
-        "automation_potential": "medium",
-        "estimated_effort_hours": {
-          "base_city": {
-            "min": 25,
-            "max": 40
-          },
-          "additional_city": {
-            "min": 4,
-            "max": 6
-          }
-        },
-        "key_constraints": [
-          "fixed_bid",
-          "chicago_base_city",
-          "2_week_timeline",
-          "defensible_methodology",
-          "repeatable_for_future_cities"
-        ],
-        "data_dependency": "external_weather_data",
-        "requires_human_judgment": true,
-        "human_judgment_reason": "defining playability assumptions, methodology decisions"
-      },
       "out_of_scope": [
         "Application/software development",
         "Daily or monthly data delivery",
@@ -789,11 +976,75 @@
         "Real-time integrations",
         "Course-specific modeling",
         "Revenue modeling"
-      ]
+      ],
+      "feasibility": {
+        "agent_capabilities_required": [
+          "api_integration",
+          "data_aggregation",
+          "scenario_modeling",
+          "excel_workbook_generation",
+          "research_writing",
+          "methodology_documentation"
+        ],
+        "output_type": "multi_file",
+        "output_format": ["xlsx", "docx", "md"],
+        "output_determinism": "semi_deterministic",
+        "determinism_notes": "Data retrieval is deterministic; playability assumptions and scenario definitions are judgment calls",
+        "verification_method": {
+          "type": "hybrid",
+          "approach": "Validate data against NOAA source; check calculation logic; review methodology coherence",
+          "automated": "partial"
+        },
+        "resource_model": {
+          "estimated_llm_calls": 20,
+          "estimated_tool_calls": 50,
+          "token_intensity": "high",
+          "primary_cost_driver": "research_synthesis"
+        },
+        "decomposable": true,
+        "subtasks": [
+          "Research and select weather data source",
+          "Define playability criteria",
+          "Fetch historical weather data (2023-2025)",
+          "Aggregate annual metrics",
+          "Define scenario thresholds",
+          "Calculate playable hours per scenario",
+          "Validate against seasonality patterns",
+          "Build Excel workbook",
+          "Write methodology documentation",
+          "Write executive summary"
+        ],
+        "external_tools_required": ["noaa_api", "weather_api", "excel_library", "docx_library"],
+        "execution_risks": [
+          "Playability definition is subjective",
+          "API access/rate limits",
+          "Methodology defensibility depends on assumptions"
+        ],
+        "success_criteria_clarity": "medium",
+        "feasibility_score": 0.72,
+        "feasibility_notes": "Research quality depends heavily on assumption documentation; client buy-in on methodology is key risk",
+        "category": "research_analysis"
+      }
     }
   ],
   "summary": {
     "total_ads": 15,
+    "feasibility_distribution": {
+      "very_high_0.90_plus": 4,
+      "high_0.80_to_0.89": 5,
+      "medium_0.70_to_0.79": 4,
+      "low_below_0.70": 2
+    },
+    "by_output_determinism": {
+      "deterministic": 5,
+      "semi_deterministic": 5,
+      "generative": 3,
+      "probabilistic": 2
+    },
+    "by_verification_automation": {
+      "fully_automated": 10,
+      "partial": 5
+    },
     "by_category": {
       "data_entry": 2,
       "data_visualization": 1,
@@ -808,22 +1059,14 @@
       "web_to_document": 1,
       "research_analysis": 1
     },
-    "by_complexity": {
-      "low": 5,
-      "low-medium": 1,
-      "medium": 5,
-      "medium-high": 2,
-      "high": 2
-    },
-    "by_automation_potential": {
-      "very_high": 4,
-      "high": 6,
-      "medium": 4,
-      "low": 1
-    },
-    "by_pricing_type": {
-      "hourly": 6,
-      "fixed": 9
-    }
+    "highest_feasibility": [
+      {"id": "ad_007", "title": "Excel Sheet Modification", "score": 0.98},
+      {"id": "ad_001", "title": "Sales Data Visualization", "score": 0.95},
+      {"id": "ad_014", "title": "PDF Text Data Entry", "score": 0.95}
+    ],
+    "lowest_feasibility": [
+      {"id": "ad_013", "title": "Data Entry from Handwritten Notes", "score": 0.60},
+      {"id": "ad_015", "title": "Golf Playable Hours Analysis", "score": 0.72}
+    ]
   }
 }
