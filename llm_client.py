@@ -26,7 +26,7 @@ class LLMClient:
         self.completion_endpoint = f"{self.base_url}/v1/completions"
     
     def chat(self, messages: List[Dict[str, str]], model: str = "local-model", 
-             temperature: float = 0.7, max_tokens: int = 1000) -> str:
+             temperature: float = 0.7, max_tokens: int = 1000, response_format: Optional[Dict] = None) -> str:
         """
         Send a chat completion request.
         
@@ -45,6 +45,10 @@ class LLMClient:
             "temperature": temperature,
             "max_tokens": max_tokens
         }
+        
+        # Add response_format if provided (for structured output/JSON schema)
+        if response_format:
+            payload["response_format"] = response_format
         
         return self._make_request(self.chat_endpoint, payload)
     
@@ -83,9 +87,12 @@ class LLMClient:
             Response text
         """
         # Try httpx first, then requests, then urllib
+        # Increased timeout for LLM responses (some models are slow)
+        timeout_seconds = 120.0
+        
         try:
             import httpx
-            with httpx.Client(timeout=60.0) as client:
+            with httpx.Client(timeout=timeout_seconds) as client:
                 response = client.post(url, json=payload)
                 if response.status_code == 200:
                     data = response.json()
@@ -95,7 +102,7 @@ class LLMClient:
         except ImportError:
             try:
                 import requests
-                response = requests.post(url, json=payload, timeout=60.0)
+                response = requests.post(url, json=payload, timeout=timeout_seconds)
                 if response.status_code == 200:
                     data = response.json()
                     return self._extract_response(data)
@@ -110,12 +117,16 @@ class LLMClient:
                     headers={'Content-Type': 'application/json'}
                 )
                 try:
-                    with urllib.request.urlopen(req, timeout=60) as response:
+                    with urllib.request.urlopen(req, timeout=timeout_seconds) as response:
                         data = json.loads(response.read().decode('utf-8'))
                         return self._extract_response(data)
                 except urllib.error.HTTPError as e:
                     error_body = e.read().decode('utf-8')
                     raise Exception(f"API returned status {e.code}: {error_body}")
+                except urllib.error.URLError as e:
+                    if "timed out" in str(e).lower():
+                        raise Exception(f"Request timed out after {timeout_seconds} seconds")
+                    raise
     
     def _extract_response(self, data: Dict) -> str:
         """

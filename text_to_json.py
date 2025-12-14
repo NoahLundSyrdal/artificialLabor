@@ -8,6 +8,118 @@ import json
 import re
 from pathlib import Path
 from typing import List, Dict, Optional
+from llm_client import get_llm_client
+
+
+def extract_job_with_llm(text: str) -> Optional[Dict]:
+    """
+    Extract job posting data using LLM with JSON schema.
+    Simple extraction - direct copy or keyword spotting, no reasoning.
+    
+    Args:
+        text: Raw text of job posting
+        
+    Returns:
+        Parsed job dictionary or None
+    """
+    # Load JSON schema
+    schema_path = Path(__file__).parent / "schemas" / "job_extraction_schema.json"
+    try:
+        with open(schema_path, 'r') as f:
+            job_schema = json.load(f)
+    except FileNotFoundError:
+        print(f"    [Warning]: Schema file not found, using fallback parser")
+        return parse_job_posting(text)
+    
+    llm = get_llm_client()
+    
+    # Simple prompt - just ask for extraction using the schema
+    prompt = f"""Extract structured information from this job posting using simple extraction (direct copy or keyword spotting, no reasoning):
+
+{text}
+
+Return JSON matching the schema. Include raw_text field with the original text.
+"""
+    
+    messages = [{"role": "user", "content": prompt}]
+    
+    # Try with json_schema format first
+    response_format = {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "job_extraction",
+            "schema": job_schema,
+            "strict": True
+        }
+    }
+    
+    try:
+        response = llm.chat(messages, temperature=0.1, max_tokens=2000, response_format=response_format)
+    except Exception as schema_error:
+        # If json_schema format fails, try with text format (plain JSON)
+        error_msg = str(schema_error)
+        if "400" in error_msg or "json_schema" in error_msg.lower() or "response_format" in error_msg.lower():
+            print(f"    [json_schema not supported, using text format]")
+            response_format = {"type": "text"}
+            try:
+                response = llm.chat(messages, temperature=0.1, max_tokens=2000, response_format=response_format)
+            except Exception as text_error:
+                print(f"    [LLM Extraction Error]: {text_error}")
+                return parse_job_posting(text)
+        else:
+            print(f"    [LLM Extraction Error]: {schema_error}")
+            return parse_job_posting(text)
+    
+    # Parse JSON response
+    try:
+        response_cleaned = response.strip()
+        # Remove markdown code blocks if present
+        if response_cleaned.startswith('```'):
+            response_cleaned = re.sub(r'^```(?:json)?\s*\n?', '', response_cleaned, flags=re.MULTILINE)
+            response_cleaned = re.sub(r'\n?\s*```\s*$', '', response_cleaned, flags=re.MULTILINE)
+        
+        result = json.loads(response_cleaned.strip())
+        
+        # Ensure raw_text is included
+        if "raw_text" not in result:
+            result["raw_text"] = text.strip()
+        
+        # Ensure all expected fields exist (set to empty string/array if missing)
+        expected_fields = {
+            "title": "",
+            "status": "",
+            "posted_time": "",
+            "ends_time": "",
+            "budget": "",
+            "payment_terms": "",
+            "experience_level": "",
+            "description": "",
+            "requirements": [],
+            "deliverables": []
+        }
+        
+        for field, default_value in expected_fields.items():
+            if field not in result:
+                result[field] = default_value
+        
+        # Store LLM interaction for logging
+        result["llm_prompt"] = prompt
+        result["llm_response"] = response
+        
+        # Validate required fields
+        if not result.get("title"):
+            print(f"    [Warning]: No title extracted, using fallback parser")
+            return parse_job_posting(text)
+        
+        return result
+        
+    except json.JSONDecodeError as e:
+        print(f"    [JSON Parse Error]: {e}")
+        print(f"    [Falling back to rule-based parser]")
+        return parse_job_posting(text)
+    except Exception as e:
+        print(f"    [LLM Extraction Error]: {e}")
+        return parse_job_posting(text)
 
 
 def parse_job_posting(text: str) -> Optional[Dict]:
@@ -229,13 +341,14 @@ def split_job_postings(text: str) -> List[str]:
     return jobs
 
 
-def convert_text_to_json(input_path: str) -> Dict:
+def convert_text_to_json(input_path: str, save_llm_outputs: bool = True) -> Dict:
     """
     Convert text file containing job postings to JSON format.
     This is the first step of the pipeline.
     
     Args:
         input_path: Path to input text/markdown file
+        save_llm_outputs: Whether to save all LLM responses to a file
         
     Returns:
         Dictionary with metadata and jobs list
@@ -251,12 +364,55 @@ def convert_text_to_json(input_path: str) -> Dict:
     # Split into individual job postings
     job_texts = split_job_postings(content)
     
-    # Parse each job posting
+    # Parse each job posting using LLM
     jobs = []
-    for job_text in job_texts:
-        job = parse_job_posting(job_text)
-        if job and job["title"]:
-            jobs.append(job)
+    llm_outputs = []
+    
+    for i, job_text in enumerate(job_texts, 1):
+        print(f"  Extracting job {i}/{len(job_texts)} with LLM...")
+        try:
+            job = extract_job_with_llm(job_text)
+            if job and job.get("title"):
+                jobs.append(job)
+                print(f"    [✓ Successfully extracted: {job.get('title', 'Unknown')[:50]}]")
+                
+                # Store LLM output for logging
+                if 'llm_response' in job or 'llm_prompt' in job:
+                    llm_outputs.append({
+                        'job_title': job.get('title', 'Unknown'),
+                        'job_id': i,
+                        'prompt': job.get('llm_prompt', ''),
+                        'response': job.get('llm_response', ''),
+                        'parsed_result': job
+                    })
+            else:
+                print(f"    [Warning]: Failed to extract job {i}, skipping")
+        except Exception as e:
+            print(f"    [Error extracting job {i}]: {e}")
+            # Try fallback parser
+            job = parse_job_posting(job_text)
+            if job and job.get("title"):
+                jobs.append(job)
+                print(f"    [✓ Used fallback parser for job {i}]")
+    
+    # Save all LLM outputs to a file
+    if save_llm_outputs and llm_outputs:
+        from datetime import datetime
+        output_dir = Path("data/llm_outputs")
+        output_dir.mkdir(parents=True, exist_ok=True)
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_file = output_dir / f"text_to_json_extractions_{timestamp}.json"
+        
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump({
+                'timestamp': datetime.now().isoformat(),
+                'source_file': str(input_path),
+                'total_jobs': len(job_texts),
+                'successful_extractions': len(jobs),
+                'extractions': llm_outputs
+            }, f, indent=2, ensure_ascii=False)
+        
+        print(f"\n  💾 All LLM extraction outputs saved to: {output_file}")
     
     # Create output structure
     output = {

@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AdExtraction",
+  "version": "2.0",
+  "description": "Simple extraction schema for basic LLM. All fields are direct copy or keyword spotting. No reasoning.",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Job title - extract directly from text"
+    },
+    "status": {
+      "type": "string",
+      "description": "Status: 'Open', 'Awarded', or empty string",
+      "enum": ["Open", "Awarded", ""]
+    },
+    "posted_time": {
+      "type": "string",
+      "description": "When posted - extract time phrase like 'Posted about 9 hours ago'"
+    },
+    "ends_time": {
+      "type": "string",
+      "description": "When job ends - extract phrase like 'Ends in 6 days'"
+    },
+    "budget": {
+      "type": "string",
+      "description": "Budget or rate - extract currency and amount like '$10-30 USD' or '₹100-400 INR / hour'"
+    },
+    "payment_terms": {
+      "type": "string",
+      "description": "Payment terms if mentioned - e.g., 'Paid on delivery', 'Fixed price'"
+    },
+    "experience_level": {
+      "type": "string",
+      "description": "Experience level if mentioned - e.g., 'Entry', 'Expert'"
+    },
+    "description": {
+      "type": "string",
+      "description": "Main job description text"
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of requirements - extract from 'Requirements' or 'Ideal Skills' sections"
+    },
+    "deliverables": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of deliverables if mentioned"
+    },
+    "raw_text": {
+      "type": "string",
+      "description": "Original raw text of the job posting"
+    }
+  },
+  "required": ["title", "raw_text"]
+}

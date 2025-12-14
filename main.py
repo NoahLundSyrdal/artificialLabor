@@ -35,10 +35,14 @@ def main():
     if data['jobs']:
         print(f"\n📋 Sample job (first of {len(data['jobs'])}):")
         first_job = data['jobs'][0]
-        print(f"   Title: {first_job['title']}")
-        print(f"   Status: {first_job['status']}")
-        print(f"   Budget: {first_job['budget']}")
-        print(f"   Description preview: {first_job['description'][:100]}..." if len(first_job['description']) > 100 else f"   Description: {first_job['description']}")
+        print(f"   Title: {first_job.get('title', 'N/A')}")
+        print(f"   Status: {first_job.get('status', 'N/A')}")
+        print(f"   Budget: {first_job.get('budget', 'N/A')}")
+        description = first_job.get('description', '')
+        if description:
+            print(f"   Description preview: {description[:100]}..." if len(description) > 100 else f"   Description: {description}")
+        else:
+            print(f"   Description: N/A")
     
     # Display full JSON structure (formatted)
     print(f"\n📊 Full JSON structure:")
