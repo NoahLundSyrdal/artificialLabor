@@ -1,0 +1,26 @@
+entry_id,description,amount,date_raw,notes
+1,Office supplies purchase,234.50,Jan 15 2024,Staples order
+2,Client lunch meeting,87.23,2024-01-16,With Acme Corp
+3,Software subscription,49.99,01/17/24,Monthly Slack
+4,Travel - taxi,32.00,January 18 2024,Airport pickup
+5,Equipment repair,175.00,2024/01/19,Printer maintenance
+6,Team building event,450.00,20-Jan-2024,Bowling night
+7,Marketing materials,312.75,1/22/2024,Brochure printing
+8,Utilities payment,189.34,Jan. 23 2024,Electric bill
+9,Professional development,299.00,2024-01-24,Online course
+10,Office snacks,67.89,01-25-2024,Weekly supplies
+11,Client gift basket,125.00,January 26 2024,Thank you gift
+12,Shipping costs,45.67,2024/01/29,FedEx
+13,Web hosting,19.99,30 Jan 2024,Monthly fee
+14,Phone bill,134.56,2024-01-31,Company phones
+15,Cleaning service,200.00,Feb 1 2024,Monthly service
+16,Insurance premium,567.00,2024-02-02,Quarterly payment
+17,Bank fees,25.00,02/05/24,Wire transfer
+18,Legal consultation,350.00,February 6 2024,Contract review
+19,Hardware purchase,899.99,2024-02-07,New laptop
+20,Parking fees,45.00,2/8/2024,Monthly pass
+21,Conference registration,275.00,Feb. 9 2024,Tech summit
+22,Catering,189.50,2024-02-12,Team lunch
+23,Domain renewal,14.99,02-13-2024,Annual fee
+24,Office rent,2500.00,February 14 2024,Monthly rent
+25,Advertising,450.00,2024/02/15,Google ads

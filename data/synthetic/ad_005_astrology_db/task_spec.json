@@ -1,0 +1,87 @@
+{
+  "task_id": "ad_005",
+  "task_title": "Astrology Event Database & Interface",
+  "input_file": "astrology_events.csv",
+  "database_requirements": {
+    "target_db": "MySQL",
+    "tables": [
+      {
+        "name": "event_types",
+        "description": "Lookup table for event categories",
+        "columns": ["id", "type_name", "description"]
+      },
+      {
+        "name": "celestial_bodies",
+        "description": "Lookup table for planets/luminaries",
+        "columns": ["id", "body_name", "symbol", "orbital_period_days"]
+      },
+      {
+        "name": "zodiac_signs",
+        "description": "Lookup table for zodiac signs",
+        "columns": ["id", "sign_name", "element", "modality", "ruling_planet_id"]
+      },
+      {
+        "name": "events",
+        "description": "Main events table",
+        "columns": ["id", "event_type_id", "event_date", "event_time", "celestial_body_id", "zodiac_sign_id", "description", "significance", "visibility"],
+        "foreign_keys": ["event_type_id -> event_types.id", "celestial_body_id -> celestial_bodies.id", "zodiac_sign_id -> zodiac_signs.id"]
+      }
+    ],
+    "indexes": [
+      "events.event_date",
+      "events.event_type_id",
+      "events.celestial_body_id"
+    ]
+  },
+  "interface_requirements": {
+    "pages": [
+      {
+        "name": "index.html",
+        "purpose": "Main entry form for adding/editing events",
+        "features": ["CRUD form", "Date picker", "Dropdown for event type", "Dropdown for celestial body", "Dropdown for zodiac sign"]
+      },
+      {
+        "name": "search.html",
+        "purpose": "Search console",
+        "features": ["Event type dropdown filter", "Date range filter", "Results table with chronological ordering"]
+      }
+    ],
+    "constraints": ["No heavy frameworks", "Plain HTML/CSS/vanilla JS", "Optional PHP for form handling", "Must work on basic shared hosting"]
+  },
+  "export_requirements": [
+    "events.sql - Full DDL and seed data",
+    "events_export.csv - Data dump",
+    "migration_notes.md - Instructions for PostgreSQL and SQLite"
+  ],
+  "verification_criteria": [
+    "SQL imports cleanly into fresh MySQL instance",
+    "All 30 seed events queryable",
+    "Search by event type returns correct filtered results",
+    "CRUD operations work via HTML interface",
+    "Foreign key constraints enforced"
+  ],
+  "event_types_to_seed": [
+    "Solar Eclipse",
+    "Lunar Eclipse",
+    "Mercury Retrograde",
+    "Mercury Direct",
+    "Venus Ingress",
+    "Mars Ingress",
+    "Jupiter Ingress",
+    "Saturn Retrograde",
+    "Venus Retrograde",
+    "Venus Direct",
+    "Mars Retrograde",
+    "Neptune Retrograde",
+    "Pluto Ingress",
+    "New Moon",
+    "Full Moon",
+    "Jupiter Retrograde",
+    "Uranus Retrograde",
+    "Spring Equinox",
+    "Summer Solstice",
+    "Autumn Equinox",
+    "Winter Solstice",
+    "Saturn Direct"
+  ]
+}

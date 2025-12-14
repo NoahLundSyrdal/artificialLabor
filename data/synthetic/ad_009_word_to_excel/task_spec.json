@@ -1,0 +1,140 @@
+{
+  "task_id": "ad_009",
+  "task_title": "Word Docs to Excel Workbook",
+  "input_file": "employee_onboarding_form.md",
+  "input_description": "Markdown representation of a Word document (employee onboarding form with 8 sections)",
+  "excel_structure": {
+    "sheets": [
+      {
+        "name": "1-Personal Info",
+        "source_section": "Section 1: Personal Information",
+        "fields": [
+          {"label": "Full Legal Name", "type": "text", "validation": null},
+          {"label": "Preferred Name", "type": "text", "validation": null},
+          {"label": "Date of Birth", "type": "date", "validation": "date"},
+          {"label": "Social Security Number", "type": "text", "validation": "custom_format"},
+          {"label": "Personal Email", "type": "text", "validation": "email"},
+          {"label": "Personal Phone", "type": "text", "validation": "phone"},
+          {"label": "Emergency Contact Name", "type": "text", "validation": null},
+          {"label": "Emergency Contact Phone", "type": "text", "validation": "phone"},
+          {"label": "Emergency Contact Relationship", "type": "text", "validation": "list:Spouse,Parent,Sibling,Friend,Other"}
+        ]
+      },
+      {
+        "name": "2-Address",
+        "source_section": "Section 2: Address Information",
+        "fields": [
+          {"label": "Street Address", "type": "text", "validation": null},
+          {"label": "Apartment/Unit", "type": "text", "validation": null},
+          {"label": "City", "type": "text", "validation": null},
+          {"label": "State", "type": "text", "validation": "list:state_codes"},
+          {"label": "ZIP Code", "type": "text", "validation": "zip"},
+          {"label": "Country", "type": "text", "validation": "list:USA,Canada,Other"}
+        ]
+      },
+      {
+        "name": "3-Employment",
+        "source_section": "Section 3: Employment Details",
+        "fields": [
+          {"label": "Position Title", "type": "text", "validation": null},
+          {"label": "Department", "type": "text", "validation": "list:Engineering,Sales,Marketing,HR,Finance,Operations"},
+          {"label": "Manager Name", "type": "text", "validation": null},
+          {"label": "Start Date", "type": "date", "validation": "date"},
+          {"label": "Employment Type", "type": "text", "validation": "list:Full-Time,Part-Time,Contract"},
+          {"label": "Work Location", "type": "text", "validation": "list:Office,Remote,Hybrid"},
+          {"label": "Annual Salary", "type": "currency", "validation": "number"},
+          {"label": "Pay Frequency", "type": "text", "validation": "list:Weekly,Bi-Weekly,Monthly"}
+        ],
+        "formulas": [
+          {"cell": "D12", "formula": "=IF(D7=\"\",\"\",D7/52)", "label": "Weekly Rate"},
+          {"cell": "D13", "formula": "=IF(D7=\"\",\"\",D7/26)", "label": "Bi-Weekly Rate"},
+          {"cell": "D14", "formula": "=IF(D7=\"\",\"\",D7/12)", "label": "Monthly Rate"}
+        ]
+      },
+      {
+        "name": "4-Tax Info",
+        "source_section": "Section 4: Tax Information",
+        "fields": [
+          {"label": "Federal Filing Status", "type": "text", "validation": "list:Single,Married Filing Jointly,Head of Household"},
+          {"label": "Number of Allowances", "type": "integer", "validation": "whole_number"},
+          {"label": "Additional Withholding", "type": "currency", "validation": "number"},
+          {"label": "State Filing Status", "type": "text", "validation": null}
+        ]
+      },
+      {
+        "name": "5-Direct Deposit",
+        "source_section": "Section 5: Direct Deposit Information",
+        "fields": [
+          {"label": "Bank Name", "type": "text", "validation": null},
+          {"label": "Account Type", "type": "text", "validation": "list:Checking,Savings"},
+          {"label": "Routing Number", "type": "text", "validation": "length:9"},
+          {"label": "Account Number", "type": "text", "validation": null},
+          {"label": "Deposit Type", "type": "text", "validation": "list:Full Amount,Partial"},
+          {"label": "Partial Amount", "type": "currency", "validation": "number"}
+        ]
+      },
+      {
+        "name": "6-Benefits",
+        "source_section": "Section 6: Benefits Enrollment",
+        "fields": [
+          {"label": "Health Insurance", "type": "text", "validation": "list:Employee Only,Employee + Spouse,Employee + Children,Family,Decline"},
+          {"label": "Dental Insurance", "type": "text", "validation": "list:Yes,No"},
+          {"label": "Vision Insurance", "type": "text", "validation": "list:Yes,No"},
+          {"label": "401(k) Enrollment", "type": "text", "validation": "list:Yes,No"},
+          {"label": "401(k) Contribution %", "type": "percentage", "validation": "percentage:0:100"},
+          {"label": "Life Insurance", "type": "text", "validation": "list:1x Salary,2x Salary,Decline"},
+          {"label": "HSA Contribution per Paycheck", "type": "currency", "validation": "number"}
+        ],
+        "formulas": [
+          {"cell": "D10", "formula": "=IF(D4=\"Yes\",('3-Employment'!D7*D5/100),0)", "label": "Annual 401k Contribution"}
+        ]
+      },
+      {
+        "name": "7-Equipment",
+        "source_section": "Section 7: Equipment & Access",
+        "fields": [
+          {"label": "Computer Type", "type": "text", "validation": "list:Laptop,Desktop"},
+          {"label": "Operating System", "type": "text", "validation": "list:Windows,Mac"},
+          {"label": "Software Licenses Needed", "type": "text", "validation": null},
+          {"label": "Building Access Card", "type": "text", "validation": "list:Required,Not Required"},
+          {"label": "Parking Pass", "type": "text", "validation": "list:Required,Not Required"}
+        ]
+      },
+      {
+        "name": "8-Acknowledgments",
+        "source_section": "Section 8: Acknowledgments + HR Use Only",
+        "fields": [
+          {"label": "Employee Handbook Received", "type": "text", "validation": "list:Yes,No"},
+          {"label": "Handbook Date", "type": "date", "validation": "date"},
+          {"label": "Code of Conduct Signed", "type": "text", "validation": "list:Yes,No"},
+          {"label": "Code of Conduct Date", "type": "date", "validation": "date"},
+          {"label": "NDA Signed", "type": "text", "validation": "list:Yes,No"},
+          {"label": "NDA Date", "type": "date", "validation": "date"},
+          {"label": "Background Check Authorized", "type": "text", "validation": "list:Yes,No"},
+          {"label": "Background Check Date", "type": "date", "validation": "date"},
+          {"label": "Processed By (HR)", "type": "text", "validation": null},
+          {"label": "Processing Date", "type": "date", "validation": "date"},
+          {"label": "Employee ID Assigned", "type": "text", "validation": null},
+          {"label": "HR Notes", "type": "text", "validation": null}
+        ],
+        "formulas": [
+          {"cell": "D15", "formula": "=IF(AND(D1=\"Yes\",D3=\"Yes\",D5=\"Yes\",D7=\"Yes\"),\"COMPLETE\",\"INCOMPLETE\")", "label": "Onboarding Status"}
+        ]
+      }
+    ]
+  },
+  "formatting_requirements": {
+    "headers": "Bold, dark blue background (#1F4E79), white text",
+    "labels": "Bold, left-aligned",
+    "input_cells": "Light yellow background (#FFFFC0), bordered",
+    "formula_cells": "Light gray background (#E0E0E0), locked",
+    "protection": "Protect all sheets, allow input in designated cells only"
+  },
+  "verification_criteria": [
+    "8 sheets created matching 8 sections",
+    "All data validation dropdowns functional",
+    "All formulas calculate correctly",
+    "Sheet protection enabled with input cells unlocked",
+    "Professional formatting applied consistently"
+  ]
+}

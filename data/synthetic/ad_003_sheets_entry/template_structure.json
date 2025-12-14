@@ -1,0 +1,40 @@
+{
+  "task_id": "ad_003",
+  "task_title": "Google Sheets Data Entry Cleanup",
+  "input_file": "raw_data.csv",
+  "template_columns": [
+    {"name": "ID", "type": "integer", "source": "entry_id"},
+    {"name": "Description", "type": "text", "source": "description"},
+    {"name": "Amount", "type": "currency", "source": "amount"},
+    {"name": "Date", "type": "date", "format": "YYYY-MM-DD", "source": "date_raw", "requires_normalization": true},
+    {"name": "Category", "type": "text", "source": "derived", "categorization_rules": {
+      "Office Supplies": ["supplies", "staples", "snacks", "materials"],
+      "Travel & Transport": ["travel", "taxi", "parking", "shipping"],
+      "Technology": ["software", "web hosting", "domain", "hardware", "equipment"],
+      "Professional Services": ["legal", "cleaning", "insurance", "consultation"],
+      "Facilities": ["rent", "utilities", "repair"],
+      "Marketing & Sales": ["marketing", "advertising", "client", "gift"],
+      "Team & HR": ["team", "catering", "conference", "professional development"],
+      "Finance & Admin": ["bank", "phone", "fees"]
+    }},
+    {"name": "Notes", "type": "text", "source": "notes"}
+  ],
+  "required_formulas": [
+    {"cell": "H2", "formula": "=SUM(C:C)", "label": "Total Amount"},
+    {"cell": "H3", "formula": "=COUNT(A:A)-1", "label": "Record Count"},
+    {"cell": "H5", "formula": "=SUMIF(E:E,\"Office Supplies\",C:C)", "label": "Office Supplies Total"},
+    {"cell": "H6", "formula": "=SUMIF(E:E,\"Travel & Transport\",C:C)", "label": "Travel Total"},
+    {"cell": "H7", "formula": "=SUMIF(E:E,\"Technology\",C:C)", "label": "Technology Total"}
+  ],
+  "data_quality_issues_to_fix": [
+    "Inconsistent date formats (6 different formats present)",
+    "Mixed currency formatting",
+    "No categorization exists - must be derived"
+  ],
+  "verification_criteria": [
+    "All dates normalized to YYYY-MM-DD",
+    "All 25 records categorized",
+    "SUM formula matches manual total: 7439.41",
+    "COUNT shows 25 records"
+  ]
+}

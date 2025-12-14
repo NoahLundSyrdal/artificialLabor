@@ -1,0 +1,56 @@
+date,product_id,product_name,category,units_sold,unit_price,revenue,region
+2024-01-05,SKU001,Wireless Mouse,Electronics,45,29.99,1349.55,North
+2024-01-05,SKU002,USB-C Hub,Electronics,23,49.99,1149.77,North
+2024-01-05,SKU003,Desk Lamp,Home Office,67,34.99,2344.33,South
+2024-01-05,SKU004,Ergonomic Keyboard,Electronics,31,89.99,2789.69,East
+2024-01-05,SKU005,Monitor Stand,Home Office,52,44.99,2339.48,West
+2024-01-12,SKU001,Wireless Mouse,Electronics,38,29.99,1139.62,North
+2024-01-12,SKU002,USB-C Hub,Electronics,41,49.99,2049.59,South
+2024-01-12,SKU003,Desk Lamp,Home Office,29,34.99,1014.71,East
+2024-01-12,SKU004,Ergonomic Keyboard,Electronics,18,89.99,1619.82,West
+2024-01-12,SKU005,Monitor Stand,Home Office,44,44.99,1979.56,North
+2024-01-19,SKU001,Wireless Mouse,Electronics,62,29.99,1859.38,South
+2024-01-19,SKU002,USB-C Hub,Electronics,35,49.99,1749.65,East
+2024-01-19,SKU003,Desk Lamp,Home Office,71,34.99,2484.29,West
+2024-01-19,SKU004,Ergonomic Keyboard,Electronics,27,89.99,2429.73,North
+2024-01-19,SKU005,Monitor Stand,Home Office,39,44.99,1754.61,South
+2024-01-26,SKU001,Wireless Mouse,Electronics,55,29.99,1649.45,East
+2024-01-26,SKU002,USB-C Hub,Electronics,48,49.99,2399.52,West
+2024-01-26,SKU003,Desk Lamp,Home Office,33,34.99,1154.67,North
+2024-01-26,SKU004,Ergonomic Keyboard,Electronics,42,89.99,3779.58,South
+2024-01-26,SKU005,Monitor Stand,Home Office,61,44.99,2744.39,East
+2024-02-02,SKU001,Wireless Mouse,Electronics,49,29.99,1469.51,West
+2024-02-02,SKU002,USB-C Hub,Electronics,37,49.99,1849.63,North
+2024-02-02,SKU003,Desk Lamp,Home Office,58,34.99,2029.42,South
+2024-02-02,SKU004,Ergonomic Keyboard,Electronics,24,89.99,2159.76,East
+2024-02-02,SKU005,Monitor Stand,Home Office,46,44.99,2069.54,West
+2024-02-09,SKU001,Wireless Mouse,Electronics,71,29.99,2129.29,North
+2024-02-09,SKU002,USB-C Hub,Electronics,29,49.99,1449.71,South
+2024-02-09,SKU003,Desk Lamp,Home Office,44,34.99,1539.56,East
+2024-02-09,SKU004,Ergonomic Keyboard,Electronics,36,89.99,3239.64,West
+2024-02-09,SKU005,Monitor Stand,Home Office,53,44.99,2384.47,North
+2024-02-16,SKU001,Wireless Mouse,Electronics,43,29.99,1289.57,South
+2024-02-16,SKU002,USB-C Hub,Electronics,52,49.99,2599.48,East
+2024-02-16,SKU003,Desk Lamp,Home Office,38,34.99,1329.62,West
+2024-02-16,SKU004,Ergonomic Keyboard,Electronics,29,89.99,2609.71,North
+2024-02-16,SKU005,Monitor Stand,Home Office,67,44.99,3014.33,South
+2024-02-23,SKU001,Wireless Mouse,Electronics,58,29.99,1739.42,East
+2024-02-23,SKU002,USB-C Hub,Electronics,44,49.99,2199.56,West
+2024-02-23,SKU003,Desk Lamp,Home Office,51,34.99,1784.49,North
+2024-02-23,SKU004,Ergonomic Keyboard,Electronics,33,89.99,2969.67,South
+2024-02-23,SKU005,Monitor Stand,Home Office,42,44.99,1889.58,East
+2024-03-01,SKU001,Wireless Mouse,Electronics,66,29.99,1979.34,West
+2024-03-01,SKU002,USB-C Hub,Electronics,31,49.99,1549.69,North
+2024-03-01,SKU003,Desk Lamp,Home Office,73,34.99,2554.27,South
+2024-03-01,SKU004,Ergonomic Keyboard,Electronics,41,89.99,3689.59,East
+2024-03-01,SKU005,Monitor Stand,Home Office,55,44.99,2474.45,West
+2024-03-08,SKU006,Webcam HD,Electronics,89,59.99,5339.11,North
+2024-03-08,SKU007,Cable Organizer,Home Office,124,12.99,1610.76,South
+2024-03-08,SKU008,Laptop Stand,Home Office,47,64.99,3054.53,East
+2024-03-08,SKU009,Wireless Charger,Electronics,76,24.99,1899.24,West
+2024-03-08,SKU010,Desk Mat XL,Home Office,63,29.99,1889.37,North
+2024-03-15,SKU006,Webcam HD,Electronics,72,59.99,4319.28,South
+2024-03-15,SKU007,Cable Organizer,Home Office,98,12.99,1273.02,East
+2024-03-15,SKU008,Laptop Stand,Home Office,54,64.99,3509.46,West
+2024-03-15,SKU009,Wireless Charger,Electronics,81,24.99,2024.19,North
+2024-03-15,SKU010,Desk Mat XL,Home Office,71,29.99,2129.29,South

@@ -1,0 +1,31 @@
+event_id,event_type,event_date,event_time,celestial_body,zodiac_sign,description,significance,visibility
+1,Solar Eclipse,2024-04-08,18:17:00,Sun,Aries,Total solar eclipse visible across North America,Major - New beginnings and transformation,North America
+2,Lunar Eclipse,2024-03-25,07:00:00,Moon,Libra,Penumbral lunar eclipse,Moderate - Relationship insights,Europe/Africa/Americas
+3,Mercury Retrograde,2024-04-01,NULL,Mercury,Aries,Mercury stations retrograde,Communication disruptions begin,Global
+4,Mercury Direct,2024-04-25,NULL,Mercury,Aries,Mercury stations direct,Communication clarity returns,Global
+5,Venus Ingress,2024-04-05,00:00:00,Venus,Aries,Venus enters Aries,Passionate romantic energy,Global
+6,Mars Ingress,2024-04-30,00:00:00,Mars,Aries,Mars enters home sign Aries,Heightened energy and drive,Global
+7,Jupiter Ingress,2024-05-25,00:00:00,Jupiter,Gemini,Jupiter enters Gemini for 1 year,Expansion in communication and learning,Global
+8,Saturn Retrograde,2024-06-29,NULL,Saturn,Pisces,Saturn stations retrograde,Review of boundaries and responsibilities,Global
+9,Solar Eclipse,2024-10-02,18:45:00,Sun,Libra,Annular solar eclipse,Major - Partnership focus,South America
+10,Lunar Eclipse,2024-09-18,02:34:00,Moon,Pisces,Partial lunar eclipse,Moderate - Spiritual insights,Americas/Europe/Africa
+11,Mercury Retrograde,2024-08-05,NULL,Mercury,Virgo,Mercury stations retrograde in home sign,Detailed review and analysis period,Global
+12,Mercury Direct,2024-08-28,NULL,Mercury,Leo,Mercury stations direct,Forward momentum resumes,Global
+13,Venus Retrograde,2024-03-01,NULL,Venus,Aries,Venus stations retrograde,Review of values and relationships,Global
+14,Venus Direct,2024-04-12,NULL,Venus,Pisces,Venus stations direct,Relationship clarity emerges,Global
+15,Mars Retrograde,2024-12-06,NULL,Mars,Leo,Mars stations retrograde,Action review period begins,Global
+16,Neptune Retrograde,2024-07-02,NULL,Neptune,Pisces,Neptune stations retrograde,Dreams and illusions under review,Global
+17,Pluto Ingress,2024-01-20,00:00:00,Pluto,Aquarius,Pluto re-enters Aquarius,Generational transformation continues,Global
+18,New Moon,2024-01-11,11:57:00,Moon,Capricorn,New Moon in Capricorn,Setting career intentions,Global
+19,Full Moon,2024-01-25,17:54:00,Moon,Leo,Full Moon in Leo,Creative expression peaks,Global
+20,New Moon,2024-02-09,22:59:00,Moon,Aquarius,New Moon in Aquarius,Innovation and community focus,Global
+21,Full Moon,2024-02-24,12:30:00,Moon,Virgo,Full Moon in Virgo,Health and routine awareness,Global
+22,Jupiter Retrograde,2024-10-09,NULL,Jupiter,Gemini,Jupiter stations retrograde,Inward expansion of knowledge,Global
+23,Uranus Retrograde,2024-09-01,NULL,Uranus,Taurus,Uranus stations retrograde,Revolutionary changes internalized,Global
+24,Spring Equinox,2024-03-20,03:06:00,Sun,Aries,Sun enters Aries - Vernal Equinox,Astrological New Year begins,Global
+25,Summer Solstice,2024-06-20,20:51:00,Sun,Cancer,Sun enters Cancer - Summer Solstice,Peak of light in Northern Hemisphere,Global
+26,Autumn Equinox,2024-09-22,12:44:00,Sun,Libra,Sun enters Libra - Autumnal Equinox,Balance of light and dark,Global
+27,Winter Solstice,2024-12-21,09:20:00,Sun,Capricorn,Sun enters Capricorn - Winter Solstice,Shortest day in Northern Hemisphere,Global
+28,Mercury Retrograde,2024-11-25,NULL,Mercury,Sagittarius,Mercury stations retrograde,Travel and belief systems under review,Global
+29,Mercury Direct,2024-12-15,NULL,Mercury,Sagittarius,Mercury stations direct,Holiday communication improves,Global
+30,Saturn Direct,2024-11-15,NULL,Saturn,Pisces,Saturn stations direct,Responsibilities move forward,Global

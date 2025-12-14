@@ -1,0 +1,64 @@
+{
+  "task_id": "ad_011",
+  "task_title": "URLs to PDFs",
+  "input_file": "url_list.txt",
+  "url_count": 125,
+  "processing_requirements": {
+    "viewport": {
+      "width": 1920,
+      "height": 1080,
+      "device_type": "desktop"
+    },
+    "pdf_settings": {
+      "format": "A4",
+      "orientation": "portrait",
+      "margin": "0.5in",
+      "print_background": true,
+      "scale": 0.9
+    },
+    "wait_conditions": [
+      "networkidle2",
+      "domcontentloaded",
+      "wait_for_images"
+    ],
+    "timeout_per_page_ms": 30000
+  },
+  "output_structure": {
+    "individual_pdfs_folder": "pdfs/",
+    "master_pdf": "master_catalog.pdf",
+    "naming_convention": "Extract product title from page, sanitize for filename",
+    "naming_fallback": "url_index_NNN.pdf"
+  },
+  "quality_requirements": [
+    "No cut-off text at page boundaries",
+    "All images fully loaded before capture",
+    "Product details (price, description, specs) visible",
+    "Headers and navigation included",
+    "Minimum readable font size"
+  ],
+  "expected_outputs": {
+    "individual_pdfs": 125,
+    "master_pdf_pages": "125-250 depending on page lengths",
+    "folder_structure": {
+      "root/": {
+        "pdfs/": "125 individual PDF files",
+        "master_catalog.pdf": "Combined PDF",
+        "manifest.json": "List of URLs with corresponding filenames"
+      }
+    }
+  },
+  "verification_criteria": [
+    "125 PDF files exist in pdfs/ folder",
+    "All PDF files > 10KB (not empty/error pages)",
+    "Master PDF contains all pages in order",
+    "Manifest.json maps all URLs to filenames",
+    "Spot-check 10 random PDFs for quality"
+  ],
+  "error_handling": {
+    "on_timeout": "Retry once, then log and continue",
+    "on_404": "Log error, skip, continue",
+    "on_blocked": "Log error, skip, continue",
+    "generate_error_report": true
+  },
+  "demo_note": "For actual execution, replace example-store.com URLs with real target URLs. The synthetic URLs demonstrate the expected volume and naming patterns."
+}

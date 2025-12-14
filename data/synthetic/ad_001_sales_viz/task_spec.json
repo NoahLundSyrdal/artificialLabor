@@ -1,0 +1,40 @@
+{
+  "task_id": "ad_001",
+  "task_title": "Sales Data Visualization",
+  "input_file": "sales_data.csv",
+  "expected_outputs": [
+    {
+      "type": "pie_chart",
+      "description": "Revenue distribution by product",
+      "data_source": "Aggregate revenue by product_name",
+      "filename": "revenue_by_product_pie.png"
+    },
+    {
+      "type": "bar_chart",
+      "description": "Revenue grouped by individual products",
+      "data_source": "Sum revenue per product_name",
+      "filename": "revenue_by_product_bar.png"
+    }
+  ],
+  "verification_criteria": [
+    "Pie chart slices sum to total revenue",
+    "Bar chart values match product-level aggregations",
+    "All 10 products represented",
+    "Labels are readable and accurate"
+  ],
+  "expected_aggregations": {
+    "total_revenue": 120843.89,
+    "by_product": {
+      "Wireless Mouse": 14604.13,
+      "USB-C Hub": 16996.60,
+      "Desk Lamp": 16234.36,
+      "Ergonomic Keyboard": 25287.19,
+      "Monitor Stand": 20749.78,
+      "Webcam HD": 9658.39,
+      "Cable Organizer": 2883.78,
+      "Laptop Stand": 6563.99,
+      "Wireless Charger": 3923.43,
+      "Desk Mat XL": 4018.66
+    }
+  }
+}
