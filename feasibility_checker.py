@@ -19,19 +19,20 @@ except ImportError:
     pass  # dotenv not required
 
 
-def _call_local_llm(prompt: str) -> str:
+def _call_local_llm(prompt: str, max_tokens: int = 350) -> str:
     """
     Call local LLM (LM Studio) using the LLM client.
     
     Args:
         prompt: The prompt to send to the LLM
+        max_tokens: Maximum tokens to generate (default 350 for shorter responses)
         
     Returns:
         Response text from the LLM
     """
     llm = get_llm_client()
     messages = [{"role": "user", "content": prompt}]
-    return llm.chat(messages, temperature=0.7, max_tokens=1000)
+    return llm.chat(messages, temperature=0.2, max_tokens=max_tokens)
 
 
 def check_job_feasibility(job: Dict) -> Dict:
@@ -50,157 +51,40 @@ def check_job_feasibility(job: Dict) -> Dict:
         - risks: list of potential issues
     """
     try:
-        # Build open-ended prompt for AI feasibility assessment
+        # Use all structured data from the text_to_json step (parsed_result)
+        # This gives the LLM complete context for feasibility assessment
         job_details = f"""Title: {job.get('title', 'N/A')}
 Status: {job.get('status', 'N/A')}
+Posted: {job.get('posted_time', 'N/A')}
+Ends: {job.get('ends_time', 'N/A')}
 Budget: {job.get('budget', 'N/A')}
+Payment Terms: {job.get('payment_terms', 'N/A')}
+Experience Level: {job.get('experience_level', 'N/A')}
 Description: {job.get('description', 'N/A')}
 Requirements: {', '.join(job.get('requirements', [])) if job.get('requirements') else 'N/A'}
 Deliverables: {', '.join(job.get('deliverables', [])) if job.get('deliverables') else 'N/A'}"""
         
-        prompt = f"""Look at this job posting and critically assess whether it's feasible to complete using AI. Be realistic and conservative - many jobs require human judgment, creativity, or physical presence that AI cannot provide.
+        prompt = f"""Assess if this job is feasible for AI to complete autonomously. Be critical - if it requires human judgment, creativity, communication, or physical presence, mark it NOT feasible.
 
 {job_details}
 
-Think carefully about:
-- What specific tasks need to be done?
-- Can AI actually perform these tasks autonomously?
-- Are there human elements required (judgment, creativity, communication, physical presence)?
-- What are the real limitations and barriers?
-- Would this require human oversight or intervention?
-
-Be critical: if the job requires human judgment, creativity, communication skills, physical presence, or domain expertise that AI lacks, mark it as NOT feasible.
-
-Provide your assessment as JSON:
+Return ONLY valid JSON (no markdown, no code fences, no extra text):
 {{
   "is_feasible": true or false,
   "confidence": 0.0-1.0,
-  "reasoning": "detailed explanation of why it is or isn't feasible with AI",
+  "reasoning": "1-2 sentence explanation. No newlines inside this string.",
   "estimated_hours": number or null,
-  "risks": ["list", "of", "challenges"]
+  "risks": ["max 3 items"]
 }}
 
-IMPORTANT: Your response must be valid JSON only. Rules:
-- All string values must be in double quotes
-- No newlines or control characters inside string values (use \\n for newlines)
-- No markdown code blocks
-- No text before or after the JSON
-
-Respond with ONLY the JSON object, nothing else.
+CRITICAL: Output ONLY the JSON object. No markdown fences. No newlines inside string values. Escape all special characters.
 """
         
-        # Call local LLM
-        response_text = _call_local_llm(prompt)
+        # Call local LLM (shorter max_tokens to reduce truncation)
+        response_text = _call_local_llm(prompt, max_tokens=350)
         
-        # Log the raw LLM response (truncated for console)
-        response_preview = response_text[:300] + "..." if len(response_text) > 300 else response_text
-        print(f"    [LLM Response]: {response_preview}")
-        
-        # Parse JSON response
-        import re
-        
-        # Remove markdown code blocks if present
-        cleaned_response = response_text.strip()
-        
-        # Remove ```json or ``` at start and end
-        if cleaned_response.startswith('```'):
-            # Remove opening ```json or ```
-            cleaned_response = re.sub(r'^```(?:json)?\s*\n?', '', cleaned_response, flags=re.MULTILINE)
-            # Remove closing ```
-            cleaned_response = re.sub(r'\n?\s*```\s*$', '', cleaned_response, flags=re.MULTILINE)
-        
-        cleaned_response = cleaned_response.strip()
-        
-        # Try to extract JSON from response - look for the JSON object
-        # Use a more robust approach: find the first { and try to parse incrementally
-        json_match = re.search(r'\{[\s\S]*\}', cleaned_response)
-        if json_match:
-            json_str = json_match.group()
-            try:
-                result = json.loads(json_str)
-                print(f"    [✓ Parsed JSON successfully]")
-            except json.JSONDecodeError as e:
-                print(f"    [JSON Parse Error]: {str(e)[:100]}")
-                print(f"    [Attempting to fix common issues...]")
-                # Try to fix common JSON issues
-                
-                # Fix 1: Remove trailing commas before } or ]
-                json_str = re.sub(r',\s*}', '}', json_str)
-                json_str = re.sub(r',\s*]', ']', json_str)
-                
-                # Fix 2: Fix unquoted string values (common issue: "reasoning": value without quotes)
-                # Pattern: "reasoning":\s*([^",}\]]+?)(?=\s*[,}\]])
-                def fix_unquoted_reasoning(match):
-                    value = match.group(1).strip()
-                    # Replace newlines with spaces and escape quotes
-                    value = value.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
-                    value = value.replace('"', '\\"')
-                    # Remove multiple spaces
-                    value = ' '.join(value.split())
-                    return f'"reasoning": "{value}"'
-                
-                json_str = re.sub(r'"reasoning"\s*:\s*([^",}\]]+?)(?=\s*[,}\]])', 
-                                 fix_unquoted_reasoning, 
-                                 json_str, flags=re.DOTALL)
-                
-                # Fix 3: Manually escape control characters in JSON strings
-                # This is a simple state machine to find and fix string values
-                fixed_json = []
-                in_string = False
-                escape_next = False
-                
-                for i, char in enumerate(json_str):
-                    if escape_next:
-                        fixed_json.append(char)
-                        escape_next = False
-                        continue
-                    
-                    if char == '\\':
-                        escape_next = True
-                        fixed_json.append(char)
-                        continue
-                    
-                    if char == '"':
-                        in_string = not in_string
-                        fixed_json.append(char)
-                        continue
-                    
-                    if in_string:
-                        # Inside a string - escape control characters
-                        if ord(char) < 32:  # Control character
-                            if char == '\n':
-                                fixed_json.append('\\n')
-                            elif char == '\r':
-                                fixed_json.append('\\r')
-                            elif char == '\t':
-                                fixed_json.append('\\t')
-                            else:
-                                fixed_json.append(f'\\u{ord(char):04x}')
-                        else:
-                            fixed_json.append(char)
-                    else:
-                        fixed_json.append(char)
-                
-                json_str = ''.join(fixed_json)
-                
-                try:
-                    result = json.loads(json_str)
-                    print(f"    [✓ Fixed control chars and parsed JSON]")
-                except json.JSONDecodeError:
-                    # Last resort: use fallback parser
-                    print(f"    [Using fallback parser]")
-                    result = _parse_text_response(response_text)
-                
-                try:
-                    result = json.loads(json_str)
-                    print(f"    [✓ Fixed and parsed JSON]")
-                except json.JSONDecodeError as e2:
-                    # If still fails, try to extract fields manually using improved parser
-                    print(f"    [Using improved fallback parser]")
-                    result = _parse_text_response(response_text)
-        else:
-            print(f"    [Warning]: No JSON found in response, using fallback parser")
-            result = _parse_text_response(response_text)
+        # Parse JSON response with repair pass (logging happens inside)
+        result = _extract_and_parse_json(response_text, prompt)
         
         # Ensure all required fields
         assessment = {
@@ -230,49 +114,213 @@ Respond with ONLY the JSON object, nothing else.
         }
 
 
+def _extract_json_balanced(text: str) -> str:
+    """
+    Extract JSON object using brace-balanced parsing (more robust than regex).
+    Finds the first { and scans until braces balance to 0.
+    """
+    text = text.strip()
+    
+    # Remove markdown code fences
+    import re
+    if text.startswith('```'):
+        text = re.sub(r'^```(?:json)?\s*\n?', '', text, flags=re.MULTILINE)
+        text = re.sub(r'\n?\s*```\s*$', '', text, flags=re.MULTILINE)
+        text = text.strip()
+    
+    # Find first {
+    start_idx = text.find('{')
+    if start_idx == -1:
+        return ""
+    
+    # Balance braces
+    brace_count = 0
+    in_string = False
+    escape_next = False
+    
+    for i in range(start_idx, len(text)):
+        char = text[i]
+        
+        if escape_next:
+            escape_next = False
+            continue
+        
+        if char == '\\':
+            escape_next = True
+            continue
+        
+        if char == '"':
+            in_string = not in_string
+            continue
+        
+        if not in_string:
+            if char == '{':
+                brace_count += 1
+            elif char == '}':
+                brace_count -= 1
+                if brace_count == 0:
+                    return text[start_idx:i+1]
+    
+    # If we get here, braces never balanced - return what we have
+    return text[start_idx:]
+
+
+def _extract_and_parse_json(response_text: str, original_prompt: str) -> Dict:
+    """
+    Extract and parse JSON from LLM response with repair pass if needed.
+    """
+    import re
+    
+    # Log preview
+    response_preview = response_text[:200] + "..." if len(response_text) > 200 else response_text
+    print(f"    [LLM Response]: {response_preview}")
+    
+    # Extract JSON using brace-balanced method
+    json_str = _extract_json_balanced(response_text)
+    
+    if not json_str:
+        print(f"    [No JSON found, using text parser]")
+        return _parse_text_response(response_text)
+    
+    # Quick fixes
+    json_str = re.sub(r'"""', '"', json_str)
+    json_str = re.sub(r"'''", "'", json_str)
+    json_str = re.sub(r',\s*}', '}', json_str)  # trailing commas
+    json_str = re.sub(r',\s*]', ']', json_str)
+    
+    # Try parsing
+    try:
+        result = json.loads(json_str)
+        print(f"    [✓ Parsed JSON successfully]")
+        return result
+    except json.JSONDecodeError as e:
+        print(f"    [JSON parse failed, attempting repair...]")
+        
+        # Repair pass: ask LLM to fix the JSON
+        repair_prompt = f"""The following JSON is invalid. Fix it to be valid JSON only. Return ONLY the corrected JSON object, no markdown, no explanation:
+
+{json_str}
+
+Original error: {str(e)[:100]}
+
+Return ONLY valid JSON matching this structure:
+{{
+  "is_feasible": true or false,
+  "confidence": 0.0-1.0,
+  "reasoning": "1-2 sentences, no newlines",
+  "estimated_hours": number or null,
+  "risks": ["max 3 items"]
+}}"""
+        
+        try:
+            repaired_response = _call_local_llm(repair_prompt, max_tokens=200)
+            repaired_json = _extract_json_balanced(repaired_response)
+            
+            if repaired_json:
+                try:
+                    result = json.loads(repaired_json)
+                    print(f"    [✓ Repaired and parsed JSON]")
+                    return result
+                except json.JSONDecodeError:
+                    pass
+        except Exception as repair_error:
+            print(f"    [Repair failed: {repair_error}]")
+        
+        # Final fallback: text parser
+        print(f"    [Using text parser fallback]")
+        return _parse_text_response(response_text)
+
+
 def _parse_text_response(text: str) -> Dict:
-    """Parse a text response into structured format when JSON parsing fails."""
+    """Parse a text response into structured format when JSON parsing fails.
+    Lenient extraction - just get what we can since it's going to another LLM anyway.
+    """
     import re
     text_lower = text.lower()
     
-    # Try to extract key information from text
-    # Look for explicit "is_feasible": true/false patterns
+    # Extract is_feasible - try multiple patterns
+    is_feasible = None
     feasible_match = re.search(r'"is_feasible"\s*:\s*(true|false)', text, re.IGNORECASE)
-    confidence_match = re.search(r'"confidence"\s*:\s*([0-9.]+)', text, re.IGNORECASE)
-    
     if feasible_match:
         is_feasible = feasible_match.group(1).lower() == 'true'
     else:
-        # Be more conservative - default to NOT feasible if unclear
-        is_feasible = False
-        # Only mark feasible if very clear positive indicators
-        if (("feasible" in text_lower and "not" not in text_lower[:text_lower.find("feasible")+20] and 
-             "unfeasible" not in text_lower) and 
-            ("false" not in text_lower[:text_lower.find("feasible")+50])):
-            is_feasible = True
+        # Try without quotes
+        feasible_match = re.search(r'is_feasible\s*:\s*(true|false)', text, re.IGNORECASE)
+        if feasible_match:
+            is_feasible = feasible_match.group(1).lower() == 'true'
+        else:
+            # Look for explicit true/false near "feasible"
+            feasible_true = re.search(r'feasible[^"]*(?:true|yes|1)', text, re.IGNORECASE)
+            feasible_false = re.search(r'feasible[^"]*(?:false|no|0)', text, re.IGNORECASE)
+            if feasible_false:
+                is_feasible = False
+            elif feasible_true:
+                is_feasible = True
+            else:
+                # Default to False if unclear (conservative)
+                is_feasible = False
     
+    # Extract confidence
+    confidence = None
+    confidence_match = re.search(r'"confidence"\s*:\s*([0-9.]+)', text, re.IGNORECASE)
     if confidence_match:
         confidence = float(confidence_match.group(1))
     else:
-        # Lower confidence for fallback parsing
-        confidence = 0.3 if is_feasible else 0.2
+        # Try without quotes
+        confidence_match = re.search(r'confidence\s*:\s*([0-9.]+)', text, re.IGNORECASE)
+        if confidence_match:
+            confidence = float(confidence_match.group(1))
+        else:
+            # Default based on feasibility
+            confidence = 0.3 if is_feasible else 0.2
     
-    # Try to extract reasoning
-    reasoning_match = re.search(r'"reasoning"\s*:\s*"([^"]+)"', text, re.DOTALL)
+    # Extract reasoning - handle multiline, newlines after quote, etc.
+    reasoning = None
+    # Try pattern that handles newline immediately after opening quote: "reasoning": "\nText..."
+    # This matches: "reasoning": " (with optional newline) then captures until closing quote
+    reasoning_match = re.search(r'"reasoning"\s*:\s*"\s*\n?\s*([^"]*?)"(?=\s*[,}])', text, re.DOTALL)
     if reasoning_match:
-        reasoning = reasoning_match.group(1)
+        reasoning = reasoning_match.group(1).strip()
     else:
-        reasoning = f"Fallback parsing used. Could not extract structured JSON. Original response preview: {text[:300]}"
+        # Try standard JSON pattern (no newline after quote)
+        reasoning_match = re.search(r'"reasoning"\s*:\s*"([^"]+)"', text, re.DOTALL)
+        if reasoning_match:
+            reasoning = reasoning_match.group(1)
+        else:
+            # Try with triple quotes
+            reasoning_match = re.search(r'"reasoning"\s*:\s*"""([^"]*?)"""', text, re.DOTALL)
+            if reasoning_match:
+                reasoning = reasoning_match.group(1).strip()
+            else:
+                # Try multiline - find "reasoning": and take everything until next field or closing brace
+                # This handles unclosed quotes
+                reasoning_match = re.search(r'"reasoning"\s*:\s*["\']?\s*\n?\s*([^"]*?)(?=\s*"[a-z_]+\s*:\s*|\s*[},])', text, re.DOTALL | re.IGNORECASE)
+                if reasoning_match:
+                    reasoning = reasoning_match.group(1).strip()
+                    # Clean up common issues
+                    reasoning = re.sub(r'^["\']+|["\']+$', '', reasoning)  # Remove surrounding quotes
+                else:
+                    # Just take a chunk of text that mentions reasoning
+                    reasoning_match = re.search(r'reasoning[^:]*:\s*(.{100,500})', text, re.DOTALL | re.IGNORECASE)
+                    if reasoning_match:
+                        reasoning = reasoning_match.group(1).strip()[:500]
+                    else:
+                        reasoning = f"Extracted from LLM response: {text[:400]}"
     
-    # Try to extract risks
+    # Clean up reasoning
+    reasoning = reasoning.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
+    reasoning = ' '.join(reasoning.split())  # Normalize whitespace
+    
+    # Extract risks
+    risks = []
     risks_match = re.search(r'"risks"\s*:\s*\[(.*?)\]', text, re.DOTALL)
-    risks = ["Could not parse structured response from LLM"]
     if risks_match:
         risks_str = risks_match.group(1)
-        # Try to extract individual risk items
         risk_items = re.findall(r'"([^"]+)"', risks_str)
         if risk_items:
             risks = risk_items
+    if not risks:
+        risks = ["Extracted via text parsing"]
     
     return {
         "is_feasible": is_feasible,
