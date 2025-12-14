@@ -12,6 +12,7 @@ Pipeline steps:
 import json
 from text_to_json import convert_text_to_json
 from feasibility_checker import check_all_jobs_feasibility, filter_feasible_jobs
+from proposal_generator import generate_proposals_for_feasible_jobs
 
 
 def main():
@@ -76,17 +77,39 @@ def main():
         print(f"   Feasible: {feasibility.get('is_feasible', 'N/A')}")
         print(f"   Confidence: {feasibility.get('confidence', 0):.2f}")
         print(f"   Reasoning: {feasibility.get('reasoning', 'N/A')[:150]}...")
-        if feasibility.get('estimated_hours'):
-            print(f"   Estimated hours: {feasibility.get('estimated_hours')}")
+        if feasibility.get('estimated_tokens'):
+            print(f"   Estimated tokens: {feasibility.get('estimated_tokens')}")
         if feasibility.get('risks'):
             print(f"   Risks: {', '.join(feasibility.get('risks', [])[:3])}")
     
+    # Step 3: Generate proposals for feasible jobs
+    print("\n[Step 3] Generating proposals for feasible jobs...")
+    print("-" * 60)
+    
+    jobs_with_proposals = generate_proposals_for_feasible_jobs(jobs_with_feasibility, min_confidence=0.5)
+    data['jobs'] = jobs_with_proposals
+    
+    # Count proposals generated
+    proposals_count = sum(1 for job in jobs_with_proposals if 'proposal' in job)
+    print(f"\n✓ Proposal generation complete")
+    print(f"  Proposals generated: {proposals_count}")
+    
+    # Show sample proposal
+    if proposals_count > 0:
+        sample_job = next((job for job in jobs_with_proposals if 'proposal' in job), None)
+        if sample_job:
+            print(f"\n📋 Sample proposal:")
+            proposal = sample_job.get('proposal', {})
+            print(f"   Job: {sample_job.get('title', 'Unknown')}")
+            print(f"   Greeting: {proposal.get('greeting', 'N/A')[:80]}...")
+            print(f"   Approach: {proposal.get('approach', 'N/A')[:80]}...")
+            print(f"   Deliverables: {len(proposal.get('deliverables', []))} items")
+    
     # Store data for next pipeline steps
-    # TODO: Step 3 - Cost benefit forecasting
     # TODO: Step 4 - Actually doing the work
     
     print("\n" + "=" * 60)
-    print("Step 2 complete. Ready for next pipeline steps.")
+    print("Step 3 complete. Ready for execution step.")
     print("=" * 60)
     
     return data

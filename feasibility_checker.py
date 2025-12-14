@@ -64,13 +64,22 @@ Description: {job.get('description', 'N/A')}
 Requirements: {', '.join(job.get('requirements', [])) if job.get('requirements') else 'N/A'}
 Deliverables: {', '.join(job.get('deliverables', [])) if job.get('deliverables') else 'N/A'}"""
         
-        prompt = f"""You are a Task Assessor for an automated freelancing system. Evaluate this job posting to determine if it can be profitably completed by an LLM-based agent.
+        prompt = f"""You are a Task Assessor for an automated freelancing system. Evaluate this job posting to determine if it can be profitably completed by an LLM-based agent with access to tools (Python libraries, APIs, file processing, etc.).
 
 {job_details}
 
 Assess:
-1. FEASIBILITY: Can an LLM agent complete this task autonomously? Be critical - if it requires human judgment, creativity, communication, or physical presence, mark it NOT feasible.
-2. COST: ALWAYS estimate total tokens required (even if not feasible). Consider:
+1. FEASIBILITY: Can an LLM agent complete this task using available tools? Be selective - only mark feasible if:
+   - The task is straightforward and well-defined (data entry, file conversion, basic analysis)
+   - Tools exist and are reliable (pandas for Excel, pdfplumber for PDFs, openpyxl for spreadsheets)
+   - Minimal ambiguity or judgment required
+   - NOT feasible if: requires complex human judgment, creative design, iterative client feedback, or unclear requirements
+2. CONFIDENCE: Use varied confidence scores (0.5-0.9 range):
+   - 0.9+ only for very straightforward, well-defined tasks with clear tools
+   - 0.7-0.8 for tasks that are doable but have some complexity/risks
+   - 0.5-0.6 for borderline cases that might work but have significant challenges
+   - Lower for tasks with ambiguity or high risk
+3. COST: ALWAYS estimate total tokens required (even if not feasible). Consider:
    - Reading/parsing input files
    - Processing data
    - Generating outputs (code, documents, visualizations, etc.)
@@ -80,13 +89,13 @@ Assess:
 Return ONLY valid JSON (no markdown, no code fences, no extra text):
 {{
   "is_feasible": true or false,
-  "confidence": 0.0-1.0,
+  "confidence": 0.0-1.0 (use varied scores, not always 0.95),
   "reasoning": "1-2 sentence explanation. No newlines inside this string.",
   "estimated_tokens": number (REQUIRED - always provide, even if not feasible),
   "risks": ["max 3 items"]
 }}
 
-CRITICAL: Output ONLY the JSON object. No markdown fences. No newlines inside string values. Escape all special characters. estimated_tokens is REQUIRED.
+CRITICAL: Output ONLY the JSON object. No markdown fences. No newlines inside string values. Escape all special characters. estimated_tokens is REQUIRED. Use VARIED confidence scores.
 """
         
         # Call local LLM (shorter max_tokens to reduce truncation)
