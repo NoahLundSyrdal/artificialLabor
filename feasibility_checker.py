@@ -48,7 +48,6 @@ def check_job_feasibility(job: Dict) -> Dict:
         - confidence: float (0-1)
         - reasoning: string explanation
         - estimated_tokens: int (total tokens for execution)
-        - estimated_hours: int (if feasible)
         - risks: list of potential issues
     """
     try:
@@ -84,7 +83,6 @@ Return ONLY valid JSON (no markdown, no code fences, no extra text):
   "confidence": 0.0-1.0,
   "reasoning": "1-2 sentence explanation. No newlines inside this string.",
   "estimated_tokens": number (REQUIRED - always provide, even if not feasible),
-  "estimated_hours": number or null,
   "risks": ["max 3 items"]
 }}
 
@@ -103,7 +101,6 @@ CRITICAL: Output ONLY the JSON object. No markdown fences. No newlines inside st
             "confidence": float(result.get("confidence", 0.5)),
             "reasoning": str(result.get("reasoning", response_text[:500])),
             "estimated_tokens": result.get("estimated_tokens"),  # Token cost for execution
-            "estimated_hours": result.get("estimated_hours"),
             "risks": result.get("risks", []),
             # Store raw outputs for logging
             "llm_prompt": prompt,
@@ -120,7 +117,6 @@ CRITICAL: Output ONLY the JSON object. No markdown fences. No newlines inside st
             "confidence": 0.2,
             "reasoning": f"Error during assessment: {str(e)}",
             "estimated_tokens": None,
-            "estimated_hours": None,
             "risks": ["Assessment error occurred"],
             "llm_prompt": "",
             "llm_response": ""
@@ -222,7 +218,6 @@ Return ONLY valid JSON matching this structure:
   "confidence": 0.0-1.0,
   "reasoning": "1-2 sentences, no newlines",
   "estimated_tokens": number (REQUIRED - always provide, even if not feasible),
-  "estimated_hours": number or null,
   "risks": ["max 3 items"]
 }}"""
         
@@ -346,21 +341,6 @@ def _parse_text_response(text: str) -> Dict:
             if tokens_match:
                 estimated_tokens = int(tokens_match.group(1))
     
-    # Extract estimated_hours
-    estimated_hours = None
-    hours_match = re.search(r'"estimated_hours"\s*:\s*([0-9.]+|null)', text, re.IGNORECASE)
-    if hours_match:
-        hours_val = hours_match.group(1).lower()
-        if hours_val != 'null':
-            estimated_hours = float(hours_val) if '.' in hours_val else int(hours_val)
-    else:
-        # Try without quotes
-        hours_match = re.search(r'estimated_hours\s*:\s*([0-9.]+|null)', text, re.IGNORECASE)
-        if hours_match:
-            hours_val = hours_match.group(1).lower()
-            if hours_val != 'null':
-                estimated_hours = float(hours_val) if '.' in hours_val else int(hours_val)
-    
     # Extract risks
     risks = []
     risks_match = re.search(r'"risks"\s*:\s*\[(.*?)\]', text, re.DOTALL)
@@ -377,7 +357,6 @@ def _parse_text_response(text: str) -> Dict:
         "confidence": confidence,
         "reasoning": reasoning,
         "estimated_tokens": estimated_tokens,
-        "estimated_hours": estimated_hours,
         "risks": risks
     }
 
