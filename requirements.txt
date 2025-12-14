@@ -1,2 +1,4 @@
 tzafon
 python-dotenv
+httpx
+requests
