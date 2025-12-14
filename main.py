@@ -11,6 +11,7 @@ Pipeline steps:
 
 import json
 from text_to_json import convert_text_to_json
+from feasibility_checker import check_all_jobs_feasibility, filter_feasible_jobs
 
 
 def main():
@@ -45,13 +46,43 @@ def main():
     if len(json.dumps(data, indent=2, ensure_ascii=False)) > 2000:
         print("\n... (truncated, full data available in memory)")
     
+    # Step 2: Identify feasible work
+    print("\n[Step 2] Checking job feasibility using local LLM (LM Studio)...")
+    print("-" * 60)
+    
+    jobs_with_feasibility = check_all_jobs_feasibility(data['jobs'])
+    
+    # Update data with feasibility assessments
+    data['jobs'] = jobs_with_feasibility
+    
+    # Filter and display results
+    feasible_jobs = filter_feasible_jobs(jobs_with_feasibility, min_confidence=0.5)
+    
+    print(f"\n✓ Feasibility assessment complete")
+    print(f"  Total jobs analyzed: {len(jobs_with_feasibility)}")
+    print(f"  Feasible jobs: {len(feasible_jobs)}")
+    print(f"  Not feasible: {len(jobs_with_feasibility) - len(feasible_jobs)}")
+    
+    # Show sample feasibility results
+    if jobs_with_feasibility:
+        print(f"\n📋 Sample feasibility assessment:")
+        sample = jobs_with_feasibility[0]
+        feasibility = sample.get('feasibility', {})
+        print(f"   Job: {sample.get('title', 'Unknown')}")
+        print(f"   Feasible: {feasibility.get('is_feasible', 'N/A')}")
+        print(f"   Confidence: {feasibility.get('confidence', 0):.2f}")
+        print(f"   Reasoning: {feasibility.get('reasoning', 'N/A')[:150]}...")
+        if feasibility.get('estimated_hours'):
+            print(f"   Estimated hours: {feasibility.get('estimated_hours')}")
+        if feasibility.get('risks'):
+            print(f"   Risks: {', '.join(feasibility.get('risks', [])[:3])}")
+    
     # Store data for next pipeline steps
-    # TODO: Step 2 - Identify feasible work
     # TODO: Step 3 - Cost benefit forecasting
     # TODO: Step 4 - Actually doing the work
     
     print("\n" + "=" * 60)
-    print("Step 1 complete. Ready for next pipeline steps.")
+    print("Step 2 complete. Ready for next pipeline steps.")
     print("=" * 60)
     
     return data
