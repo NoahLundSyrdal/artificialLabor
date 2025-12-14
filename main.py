@@ -101,8 +101,10 @@ def main():
             print(f"\n📋 Sample proposal:")
             proposal = sample_job.get('proposal', {})
             print(f"   Job: {sample_job.get('title', 'Unknown')}")
-            print(f"   Greeting: {proposal.get('greeting', 'N/A')[:80]}...")
-            print(f"   Approach: {proposal.get('approach', 'N/A')[:80]}...")
+            greeting = str(proposal.get('greeting', 'N/A') or 'N/A')
+            approach = str(proposal.get('approach', 'N/A') or 'N/A')
+            print(f"   Greeting: {greeting[:80]}..." if len(greeting) > 80 else f"   Greeting: {greeting}")
+            print(f"   Approach: {approach[:80]}..." if len(approach) > 80 else f"   Approach: {approach}")
             print(f"   Deliverables: {len(proposal.get('deliverables', []))} items")
     
     # Store data for next pipeline steps
