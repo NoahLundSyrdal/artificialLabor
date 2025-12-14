@@ -1,0 +1,144 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExecutorOutput",
+  "version": "1.0",
+  "description": "Output schema for Task Executor - execution results and telemetry",
+  "type": "object",
+  "required": ["ad_id", "execution", "telemetry", "deliverables", "status"],
+  "properties": {
+    "ad_id": {
+      "type": "string",
+      "description": "Reference to original ad"
+    },
+    "execution": {
+      "type": "object",
+      "required": ["started_at", "completed_at", "success"],
+      "properties": {
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "wall_time_seconds": {
+          "type": "number",
+          "description": "Total elapsed time"
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "error": {
+          "type": "string",
+          "description": "Error message if failed"
+        }
+      }
+    },
+    "telemetry": {
+      "type": "object",
+      "description": "Token usage and cost tracking",
+      "properties": {
+        "tokens": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "integer",
+              "description": "Total input tokens consumed"
+            },
+            "output": {
+              "type": "integer",
+              "description": "Total output tokens generated"
+            },
+            "total": {
+              "type": "integer"
+            },
+            "by_phase": {
+              "type": "array",
+              "description": "Token breakdown by execution phase",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "phase": {"type": "string"},
+                  "input": {"type": "integer"},
+                  "output": {"type": "integer"}
+                }
+              }
+            }
+          }
+        },
+        "cost": {
+          "type": "object",
+          "properties": {
+            "model_tier": {
+              "type": "string",
+              "enum": ["cheap", "medium", "expensive"]
+            },
+            "input_cost_usd": {"type": "number"},
+            "output_cost_usd": {"type": "number"},
+            "total_cost_usd": {"type": "number"},
+            "external_api_cost_usd": {
+              "type": "number",
+              "description": "Cost of external API calls (if any)"
+            }
+          }
+        },
+        "api_calls": {
+          "type": "object",
+          "properties": {
+            "llm_calls": {
+              "type": "integer",
+              "description": "Number of LLM API calls"
+            },
+            "tool_calls": {
+              "type": "integer",
+              "description": "Number of tool invocations"
+            },
+            "external_calls": {
+              "type": "integer",
+              "description": "Number of external API calls (web, etc.)"
+            }
+          }
+        }
+      }
+    },
+    "deliverables": {
+      "type": "array",
+      "description": "List of files/outputs produced",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "path": {"type": "string"},
+          "type": {
+            "type": "string",
+            "enum": ["csv", "json", "md", "xlsx", "pdf", "txt", "other"]
+          },
+          "size_bytes": {"type": "integer"},
+          "description": {"type": "string"}
+        }
+      }
+    },
+    "success_criteria": {
+      "type": "array",
+      "description": "Verification of each success criterion",
+      "items": {
+        "type": "object",
+        "properties": {
+          "criterion": {"type": "string"},
+          "passed": {"type": "boolean"},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["completed", "failed", "partial"],
+      "description": "Overall execution status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Any execution notes or assumptions made"
+    }
+  }
+}

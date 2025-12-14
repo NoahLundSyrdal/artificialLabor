@@ -1,0 +1,14 @@
+Assess the following freelance job posting:
+
+```json
+{{EXTRACTED_AD_JSON}}
+```
+
+Evaluate feasibility, estimate costs, calculate economics, and if viable (score >= 0.5 and positive margin), generate a client proposal and execution prompt.
+
+Remember:
+- Use MEDIUM tier ($0.50/1M tokens) for cost calculation
+- Convert budget to USD for comparison
+- Only proceed if feasibility >= 0.5 AND margin >= 30%
+- Proposal should be professional but concise
+- Execution prompt should be detailed and actionable

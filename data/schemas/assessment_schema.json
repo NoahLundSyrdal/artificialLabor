@@ -1,0 +1,186 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TaskAssessment",
+  "version": "1.0",
+  "description": "Output schema for Task Assessor - feasibility and cost-benefit analysis",
+  "type": "object",
+  "required": ["ad_id", "title", "feasibility", "cost_estimate", "economics", "decision"],
+  "properties": {
+    "ad_id": {
+      "type": "string",
+      "description": "Unique identifier for the ad"
+    },
+    "title": {
+      "type": "string",
+      "description": "Job title from extraction"
+    },
+    "assessed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of assessment"
+    },
+    "feasibility": {
+      "type": "object",
+      "required": ["score", "tier_required", "factors"],
+      "properties": {
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Overall feasibility score (0.0-1.0)"
+        },
+        "tier_required": {
+          "type": "string",
+          "enum": ["cheap", "medium", "expensive"],
+          "description": "Minimum model tier needed"
+        },
+        "factors": {
+          "type": "object",
+          "properties": {
+            "task_clarity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "How clear and specific are the requirements?"
+            },
+            "output_determinism": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Is there a clear 'correct' output?"
+            },
+            "tool_availability": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Are required tools/APIs accessible?"
+            },
+            "verification_ease": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Can success be checked programmatically?"
+            },
+            "scope_boundedness": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Is scope fixed and finite?"
+            }
+          }
+        },
+        "risks": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Potential issues that could affect delivery"
+        },
+        "blockers": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Hard blockers that prevent completion"
+        }
+      }
+    },
+    "cost_estimate": {
+      "type": "object",
+      "required": ["estimated_tokens", "estimated_cost_usd"],
+      "properties": {
+        "estimated_tokens": {
+          "type": "object",
+          "properties": {
+            "input": {"type": "integer"},
+            "output": {"type": "integer"},
+            "total": {"type": "integer"}
+          }
+        },
+        "estimated_cost_usd": {
+          "type": "number",
+          "description": "Total estimated cost in USD"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "Confidence in the estimate"
+        },
+        "cost_breakdown": {
+          "type": "string",
+          "description": "Brief explanation of cost calculation"
+        }
+      }
+    },
+    "economics": {
+      "type": "object",
+      "required": ["client_budget_usd", "our_cost_usd", "viable"],
+      "properties": {
+        "client_budget_low_usd": {
+          "type": "number",
+          "description": "Client's minimum budget in USD"
+        },
+        "client_budget_high_usd": {
+          "type": "number",
+          "description": "Client's maximum budget in USD"
+        },
+        "our_cost_usd": {
+          "type": "number",
+          "description": "Our estimated execution cost"
+        },
+        "margin_at_low_pct": {
+          "type": "number",
+          "description": "Profit margin if bid at client's low budget"
+        },
+        "margin_at_high_pct": {
+          "type": "number",
+          "description": "Profit margin if bid at client's high budget"
+        },
+        "viable": {
+          "type": "boolean",
+          "description": "Is this economically viable?"
+        },
+        "recommended_bid_usd": {
+          "type": "number",
+          "description": "Suggested bid price in USD"
+        },
+        "recommended_bid_original": {
+          "type": "string",
+          "description": "Bid in original currency (e.g., '500 INR')"
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "required": ["proceed", "reason"],
+      "properties": {
+        "proceed": {
+          "type": "boolean",
+          "description": "Should we generate a proposal?"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Explanation of decision"
+        }
+      }
+    },
+    "task_classification": {
+      "type": "object",
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "Task category (data_entry, code_generation, etc.)"
+        },
+        "primary_skill": {
+          "type": "string",
+          "description": "Main skill/expertise required"
+        },
+        "tools_needed": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Tools/libraries needed for execution"
+        },
+        "output_type": {
+          "type": "string",
+          "description": "Type of output (file, code, document, etc.)"
+        }
+      }
+    }
+  }
+}
