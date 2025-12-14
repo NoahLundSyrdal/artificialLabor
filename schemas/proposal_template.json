@@ -1,0 +1,42 @@
+{
+  "template_name": "Client-Facing Proposal Template",
+  "description": "Structure for generating professional freelancing proposals",
+  "fields": {
+    "greeting": {
+      "description": "Professional greeting addressing the client",
+      "example": "Hello, I'm interested in your [Job Title] project."
+    },
+    "understanding": {
+      "description": "Brief statement showing understanding of the project requirements",
+      "example": "I understand you need [brief description of main requirement]."
+    },
+    "approach": {
+      "description": "1-2 sentences describing your approach to completing the task",
+      "example": "I will use [tools/methods] to [achieve goal] efficiently and accurately."
+    },
+    "deliverables": {
+      "description": "List of specific deliverables that will be provided",
+      "type": "array",
+      "example": ["Deliverable 1", "Deliverable 2", "Deliverable 3"]
+    },
+    "timeline": {
+      "description": "Estimated completion time or 'To be discussed'",
+      "example": "I can complete this within [timeframe] or 'To be discussed'"
+    },
+    "pricing": {
+      "description": "Pricing proposal based on budget/payment terms from job posting",
+      "example": "My rate is [amount] [currency] [hourly/fixed] as per your budget."
+    },
+    "next_steps": {
+      "description": "What happens next (e.g., 'Ready to start immediately', 'Available for discussion')",
+      "example": "Ready to start immediately upon acceptance."
+    }
+  },
+  "guidelines": [
+    "Be professional and concise",
+    "Show understanding of requirements",
+    "Address all deliverables clearly",
+    "Match pricing to client's budget/payment terms when possible",
+    "Be confident but not overly promotional"
+  ]
+}
