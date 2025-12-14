@@ -1,0 +1,829 @@
+{
+  "schema_version": "1.0",
+  "description": "Structured representation of freelancer ads for Task Assessor evaluation",
+  "parsed_at": "2025-12-14",
+  "ads": [
+    {
+      "id": "ad_001",
+      "title": "Sales Data Visualization",
+      "status": "open",
+      "platform": "freelancer",
+      "posted": {
+        "relative": "about 9 hours ago",
+        "deadline_relative": "6 days"
+      },
+      "pricing": {
+        "type": "hourly",
+        "min": 100,
+        "max": 400,
+        "currency": "INR",
+        "payment_terms": null
+      },
+      "description": "Create pie charts and bar graphs to visualize sales data from an Excel sheet.",
+      "requirements": [
+        "Visualize revenue by product",
+        "Group data by individual products"
+      ],
+      "skills_required": [
+        "Excel proficiency",
+        "Data visualization",
+        "Chart/graph creation"
+      ],
+      "deliverables": [
+        "Pie charts showing revenue by product",
+        "Bar graphs with grouped data"
+      ],
+      "task_assessment": {
+        "category": "data_visualization",
+        "complexity": "low",
+        "tooling": ["excel", "charting"],
+        "automation_potential": "high",
+        "estimated_effort_hours": {
+          "min": 1,
+          "max": 3
+        },
+        "key_constraints": [],
+        "data_dependency": "client_provided_excel",
+        "requires_human_judgment": false
+      }
+    },
+    {
+      "id": "ad_002",
+      "title": "PDF-Word Data Entry Conversion",
+      "status": "open",
+      "platform": "freelancer",
+      "posted": {
+        "relative": "about 13 hours ago",
+        "deadline_relative": "6 days"
+      },
+      "pricing": {
+        "type": "hourly",
+        "min": 750,
+        "max": 1250,
+        "currency": "INR",
+        "payment_terms": "hourly or per file"
+      },
+      "description": "Copy text from PDF and Word files into a structured Excel sheet, checking for typos and applying correct column structure with consistency formatting.",
+      "requirements": [
+        "Copy text accurately from PDF/Word to Excel",
+        "Check for typos",
+        "Apply correct column structure per template",
+        "Final pass for consistency and formatting",
+        "Ongoing/recurring work in small packages"
+      ],
+      "skills_required": [
+        "Basic Excel skills",
+        "Attention to detail",
+        "Reliability",
+        "Prompt communication"
+      ],
+      "deliverables": [
+        "Completed Excel template per batch",
+        "Error-free data entry"
+      ],
+      "task_assessment": {
+        "category": "data_entry",
+        "complexity": "low",
+        "tooling": ["excel", "pdf_reader", "word"],
+        "automation_potential": "very_high",
+        "estimated_effort_hours": {
+          "min": 1,
+          "max": 4,
+          "note": "per batch"
+        },
+        "key_constraints": ["template_provided", "recurring_work"],
+        "data_dependency": "client_provided_documents",
+        "requires_human_judgment": false
+      }
+    },
+    {
+      "id": "ad_003",
+      "title": "Google Sheets Data Entry Cleanup",
+      "status": "open",
+      "platform": "freelancer",
+      "posted": {
+        "relative": "about 13 hours ago",
+        "deadline_relative": "6 days"
+      },
+      "pricing": {
+        "type": "hourly",
+        "min": 750,
+        "max": 1250,
+        "currency": "INR",
+        "payment_terms": null
+      },
+      "description": "Copy mixed data (numbers and text) into a Google Sheet using pre-defined template, with categorization, labeling, and basic formulas (SUM, COUNT).",
+      "requirements": [
+        "Transfer data to correct columns in template",
+        "Clear labeling",
+        "Apply basic formulas (SUM, COUNT)",
+        "Add comments for unclear items rather than guessing",
+        "Clean, logical left-to-right layout"
+      ],
+      "skills_required": [
+        "Google Sheets",
+        "Basic formulas",
+        "Data categorization",
+        "Attention to detail"
+      ],
+      "deliverables": [
+        "Single Google Sheet populated, categorized, and formula-checked"
+      ],
+      "task_assessment": {
+        "category": "data_entry",
+        "complexity": "low",
+        "tooling": ["google_sheets"],
+        "automation_potential": "very_high",
+        "estimated_effort_hours": {
+          "min": 1,
+          "max": 3
+        },
+        "key_constraints": ["template_provided", "accuracy_over_speed"],
+        "data_dependency": "client_provided_data",
+        "requires_human_judgment": false
+      }
+    },
+    {
+      "id": "ad_004",
+      "title": "Excel VBA Automation Support",
+      "status": "open",
+      "platform": "freelancer",
+      "posted": {
+        "relative": "about 21 hours ago",
+        "deadline_relative": "6 days"
+      },
+      "pricing": {
+        "type": "fixed",
+        "min": 10,
+        "max": 30,
+        "currency": "AUD",
+        "payment_terms": "paid on delivery"
+      },
+      "description": "Automate spreadsheet workflow (data import, transformation, final reporting) into a single VBA-driven workbook.",
+      "requirements": [
+        "Data import automation",
+        "Data transformation",
+        "Final reporting in single workbook",
+        "VBA-driven workflow"
+      ],
+      "skills_required": [
+        "Excel VBA",
+        "Workflow automation",
+        "Data transformation"
+      ],
+      "deliverables": [
+        "Single VBA-driven Excel workbook automating full workflow"
+      ],
+      "task_assessment": {
+        "category": "automation",
+        "complexity": "medium",
+        "tooling": ["excel", "vba"],
+        "automation_potential": "high",
+        "estimated_effort_hours": {
+          "min": 2,
+          "max": 3,
+          "client_estimate": "2-3 hrs max"
+        },
+        "key_constraints": ["simple_task_per_client"],
+        "data_dependency": "client_provided_spreadsheets",
+        "requires_human_judgment": false
+      }
+    },
+    {
+      "id": "ad_005",
+      "title": "Astrology Event Database & Interface",
+      "status": "open",
+      "platform": "freelancer",
+      "posted": {
+        "relative": "about 12 hours ago",
+        "deadline_relative": "6 days"
+      },
+      "pricing": {
+        "type": "fixed",
+        "min": 12500,
+        "max": 37500,
+        "currency": "INR",
+        "payment_terms": "paid on delivery"
+      },
+      "description": "Build a normalized database for astrological events with HTML data-entry interface, search functionality, and export capabilities.",
+      "requirements": [
+        "Normalized database schema with keys, indexes, ERD",
+        "MySQL-compatible structure",
+        "HTML/CSS/vanilla JS data entry interface",
+        "Form for add/edit/delete events (date, time, event type, notes)",
+        "Search console with dropdown and chronological results",
+        "SQL file and CSV dump for export",
+        "Migration notes for other DB engines",
+        "Sample data seeding scripts"
+      ],
+      "skills_required": [
+        "Database design (MySQL)",
+        "HTML/CSS",
+        "Vanilla JavaScript",
+        "PHP (optional, for form handling)",
+        "SQL export/import"
+      ],
+      "deliverables": [
+        "Normalized database schema with ERD",
+        "HTML data entry interface",
+        "Search functionality by event type",
+        ".sql import file",
+        "CSV dump",
+        "Migration documentation",
+        "Seeding scripts"
+      ],
+      "task_assessment": {
+        "category": "full_stack_development",
+        "complexity": "medium-high",
+        "tooling": ["mysql", "html", "css", "javascript", "php"],
+        "automation_potential": "high",
+        "estimated_effort_hours": {
+          "min": 15,
+          "max": 40
+        },
+        "key_constraints": ["no_heavy_frameworks", "plain_html_pages", "portable", "shared_host_compatible"],
+        "data_dependency": "schema_design_required",
+        "requires_human_judgment": false
+      }
+    },
+    {
+      "id": "ad_006",
+      "title": "Personal Expense Categorization & Budgeting",
+      "status": "open",
+      "platform": "freelancer",
+      "posted": {
+        "relative": "1 day ago",
+        "deadline_relative": "5 days"
+      },
+      "pricing": {
+        "type": "hourly",
+        "min": 100,
+        "max": 400,
+        "currency": "INR",
+        "payment_terms": null
+      },
+      "description": "Daily expense categorization in Google Sheets plus building a budgeting dashboard with weekly/monthly summaries and budget-vs-actual tracking.",
+      "requirements": [
+        "Daily categorization of new expense entries",
+        "Categories: Food & Groceries, Transportation, Entertainment, All Expenses",
+        "Weekly and monthly summaries",
+        "Budget-vs-actual tracking per category",
+        "Dashboard highlighting overspend",
+        "Loom video or written documentation of formulas"
+      ],
+      "skills_required": [
+        "Google Sheets",
+        "Data categorization",
+        "Dashboard creation",
+        "Formula documentation"
+      ],
+      "deliverables": [
+        "Categorized expense sheet",
+        "Budgeting dashboard with summaries",
+        "Documentation (video or written)"
+      ],
+      "task_assessment": {
+        "category": "spreadsheet_dashboard",
+        "complexity": "medium",
+        "tooling": ["google_sheets"],
+        "automation_potential": "medium",
+        "estimated_effort_hours": {
+          "min": 3,
+          "max": 8,
+          "note": "initial setup, plus daily maintenance"
+        },
+        "key_constraints": ["daily_recurring_task", "start_this_week"],
+        "data_dependency": "client_provided_google_sheet",
+        "requires_human_judgment": true,
+        "human_judgment_reason": "categorization decisions may require context"
+      }
+    },
+    {
+      "id": "ad_007",
+      "title": "Excel Sheet Modification",
+      "status": "open",
+      "platform": "freelancer",
+      "posted": {
+        "relative": "1 day ago",
+        "deadline_relative": "5 days"
+      },
+      "pricing": {
+        "type": "fixed",
+        "min": 10,
+        "max": 30,
+        "currency": "USD",
+        "payment_terms": "paid on delivery",
+        "bonus": "tip for completion in less than a day"
+      },
+      "description": "Add @ prefix to Column A values, sort by text length (shortest to longest), remove duplicates, preserve special characters and column alignment.",
+      "requirements": [
+        "Prefix all Column A values with @",
+        "Sort by Column A text length (shortest first)",
+        "Keep all columns aligned with rows during sort",
+        "Remove duplicate rows after @ addition",
+        "Preserve special characters in other columns"
+      ],
+      "skills_required": [
+        "Excel",
+        "Text manipulation",
+        "Sorting",
+        "Deduplication"
+      ],
+      "deliverables": [
+        "Single cleaned CSV with @ prefix, duplicates removed, sorted by length"
+      ],
+      "task_assessment": {
+        "category": "data_transformation",
+        "complexity": "low",
+        "tooling": ["excel", "csv"],
+        "automation_potential": "very_high",
+        "estimated_effort_hours": {
+          "min": 0.25,
+          "max": 1,
+          "client_estimate": "probably 3 minutes for someone who knows excel"
+        },
+        "key_constraints": ["fast_turnaround_preferred", "file_not_yet_attached"],
+        "data_dependency": "client_provided_csv",
+        "requires_human_judgment": false
+      }
+    },
+    {
+      "id": "ad_008",
+      "title": "Recruitment Data Cleanup & Insights",
+      "status": "open",
+      "platform": "freelancer",
+      "posted": {
+        "relative": "1 day ago",
+        "deadline_relative": "5 days"
+      },
+      "pricing": {
+        "type": "hourly",
+        "min": 15,
+        "max": 25,
+        "currency": "USD",
+        "payment_terms": null
+      },
+      "description": "Clean and restructure a 47-row hiring tracker, standardize data, apply formatting, then analyze for insights with narrative summary and visualizations.",
+      "requirements": [
+        "Audit and flag data-type mismatches, duplicates, missing values",
+        "Fix inconsistent naming conventions",
+        "Restructure columns for uniform date/candidate/stage formats",
+        "Apply filters, conditional highlights, tidy headers",
+        "Produce 1-2 page narrative summary of insights",
+        "Create pivot tables and charts in separate worksheet",
+        "Document all changes made"
+      ],
+      "skills_required": [
+        "Advanced Excel (Power Query, pivot tables, lookups)",
+        "Data cleaning",
+        "Data analysis",
+        "Report writing"
+      ],
+      "deliverables": [
+        "Cleaned, standardized Excel tracker",
+        "Insight narrative (1-2 pages)",
+        "Pivot tables and charts",
+        "Change log"
+      ],
+      "task_assessment": {
+        "category": "data_analysis",
+        "complexity": "medium",
+        "tooling": ["excel", "power_query", "pivot_tables"],
+        "automation_potential": "medium",
+        "estimated_effort_hours": {
+          "min": 4,
+          "max": 10
+        },
+        "key_constraints": ["47_rows", "validation_required", "plain_english_findings"],
+        "data_dependency": "client_provided_excel",
+        "requires_human_judgment": true,
+        "human_judgment_reason": "insight generation and recommendations require interpretation"
+      }
+    },
+    {
+      "id": "ad_009",
+      "title": "Word Docs to Excel Workbook",
+      "status": "open",
+      "platform": "freelancer",
+      "posted": {
+        "relative": "1 day ago",
+        "deadline_relative": "5 days"
+      },
+      "pricing": {
+        "type": "fixed",
+        "min": 10,
+        "max": 30,
+        "currency": "USD",
+        "payment_terms": "paid on delivery",
+        "per_unit": "$5-$15 per document"
+      },
+      "description": "Convert Word documents into a multi-sheet Excel workbook with data validation, simple formulas, cell protection, and professional formatting.",
+      "requirements": [
+        "Multiple sheets matching Word document sections",
+        "Handle text, numeric, and date data types",
+        "Data validation where appropriate",
+        "Simple formulas (subtotals, averages, date differences)",
+        "Cell protection",
+        "Tab naming matching document headings",
+        "Professional table formatting",
+        "Mirror wording, headings, instructional text"
+      ],
+      "skills_required": [
+        "Excel",
+        "Data validation",
+        "Formula creation",
+        "Document conversion"
+      ],
+      "deliverables": [
+        ".xlsx workbook mirroring Word templates"
+      ],
+      "task_assessment": {
+        "category": "document_conversion",
+        "complexity": "medium",
+        "tooling": ["excel", "word"],
+        "automation_potential": "high",
+        "estimated_effort_hours": {
+          "min": 1,
+          "max": 4,
+          "note": "depends on number and complexity of documents"
+        },
+        "key_constraints": ["no_macros", "user_friendly_for_non_excel_users"],
+        "data_dependency": "client_provided_word_docs",
+        "requires_human_judgment": false
+      }
+    },
+    {
+      "id": "ad_010",
+      "title": "Excel Spreadsheet Dashboard",
+      "status": "awarded",
+      "platform": "peopleperhour",
+      "posted": {
+        "relative": "3 weeks ago",
+        "proposals": 43
+      },
+      "pricing": {
+        "type": "fixed",
+        "amount": 350,
+        "currency": "GBP",
+        "usd_approx": 468,
+        "payment_terms": null
+      },
+      "description": "Create a two-sheet Excel dashboard with auto-updating reports from pasted data, including pie charts, financial forecasts, and filterable tables.",
+      "requirements": [
+        "Sheet 1: Dashboard with 5 sections",
+        "Sheet 2: Data paste area for system exports",
+        "Auto-update on new data entry",
+        "Profitable vs Not Profitable pie chart",
+        "Financial Forecast stacked graph (fees + extras) with target line",
+        "Cumulative bar graphs for financial year",
+        "Cases by Mortgage Type table (count, total, average)",
+        "Cases by Advisor table (count, profitable/not profitable, total fees, average)",
+        "Completed cases table for selected period",
+        "Toggle for last week/month/custom date range",
+        "Filter buttons for mortgage type and advisor",
+        "Support full year of data without formula adjustments",
+        "Company branding colors"
+      ],
+      "skills_required": [
+        "Advanced Excel",
+        "Dashboard design",
+        "Dynamic charts",
+        "Data filtering",
+        "Conditional formatting"
+      ],
+      "deliverables": [
+        "Excel workbook with dashboard and data sheet"
+      ],
+      "task_assessment": {
+        "category": "spreadsheet_dashboard",
+        "complexity": "high",
+        "tooling": ["excel", "advanced_formulas", "charting"],
+        "automation_potential": "high",
+        "estimated_effort_hours": {
+          "min": 15,
+          "max": 30
+        },
+        "key_constraints": ["no_formula_adjustments_needed", "high_quality_finish", "dynamic_filtering"],
+        "data_dependency": "client_provided_data_format",
+        "requires_human_judgment": false
+      }
+    },
+    {
+      "id": "ad_011",
+      "title": "URLs to PDFs",
+      "status": "awarded",
+      "platform": "peopleperhour",
+      "posted": {
+        "relative": "6 days ago",
+        "proposals": 13
+      },
+      "pricing": {
+        "type": "fixed",
+        "amount": 66,
+        "currency": "GBP",
+        "usd_approx": 88,
+        "payment_terms": null
+      },
+      "description": "Convert 125 URLs to clean, readable PDFs, combine into master PDF, with proper formatting and organized file delivery.",
+      "requirements": [
+        "Convert 125 URLs to 125 individual PDFs",
+        "Desktop view (not mobile)",
+        "Clean, readable formatting",
+        "Headers, text fit, product details visible",
+        "High-quality export (no cut text)",
+        "File naming based on product titles",
+        "Combine all PDFs into one master PDF",
+        "Organized folder delivery"
+      ],
+      "skills_required": [
+        "Web scraping/capture",
+        "PDF generation",
+        "PDF merging",
+        "File organization"
+      ],
+      "deliverables": [
+        "125 individual PDFs",
+        "1 master combined PDF",
+        "Organized folder structure"
+      ],
+      "task_assessment": {
+        "category": "web_to_document",
+        "complexity": "low-medium",
+        "tooling": ["browser", "pdf_tools", "automation_scripts"],
+        "automation_potential": "very_high",
+        "estimated_effort_hours": {
+          "min": 3,
+          "max": 8
+        },
+        "key_constraints": ["125_urls", "desktop_view_only", "quality_formatting"],
+        "data_dependency": "client_provided_url_list",
+        "requires_human_judgment": false
+      }
+    },
+    {
+      "id": "ad_012",
+      "title": "Google Sheets Data Validation + INDIRECT expert",
+      "status": "awarded",
+      "platform": "peopleperhour",
+      "posted": {
+        "relative": "3 days ago",
+        "proposals": 3
+      },
+      "pricing": {
+        "type": "fixed",
+        "amount": null,
+        "currency": null,
+        "payment_terms": null,
+        "note": "10-minute fix"
+      },
+      "description": "Fix dependent dropdowns in Google Sheets using INDIRECT function with named ranges, resolving 'Please enter a valid range' error.",
+      "requirements": [
+        "Column B = Section dropdown",
+        "Column C = dependent dropdown reading named range from B",
+        "Working INDIRECT formula or workaround",
+        "Must work with 2025 Google Sheets quirks"
+      ],
+      "skills_required": [
+        "Google Sheets",
+        "INDIRECT function",
+        "Data validation",
+        "Named ranges"
+      ],
+      "deliverables": [
+        "Working formula or workaround for dependent dropdowns"
+      ],
+      "task_assessment": {
+        "category": "spreadsheet_formula",
+        "complexity": "low",
+        "tooling": ["google_sheets"],
+        "automation_potential": "low",
+        "estimated_effort_hours": {
+          "min": 0.1,
+          "max": 0.5,
+          "client_estimate": "10 minutes"
+        },
+        "key_constraints": ["specific_technical_issue", "quick_fix"],
+        "data_dependency": "client_provided_sheet",
+        "requires_human_judgment": false
+      }
+    },
+    {
+      "id": "ad_013",
+      "title": "Data Entry from Handwritten Notes",
+      "status": "open",
+      "platform": "freelancer",
+      "posted": {
+        "relative": "2 days ago",
+        "deadline_relative": "5 days"
+      },
+      "pricing": {
+        "type": "fixed",
+        "min": 10,
+        "max": 30,
+        "currency": "USD",
+        "payment_terms": "paid on delivery"
+      },
+      "description": "Transcribe handwritten notes into Microsoft Word with formatted tables, capturing information exactly as written with spelling consistency checks.",
+      "requirements": [
+        "Transcribe handwritten notes to Word tables",
+        "Capture information exactly as written",
+        "Place entries in correct columns",
+        "Check spelling consistency",
+        "Bold headings, left-aligned entries",
+        "Highlight and comment on unclear handwriting",
+        "Progress updates"
+      ],
+      "skills_required": [
+        "Microsoft Word",
+        "Data entry",
+        "Table formatting",
+        "Attention to detail"
+      ],
+      "deliverables": [
+        "Single .docx file with uniform tables",
+        "Change log noting ambiguous words flagged"
+      ],
+      "task_assessment": {
+        "category": "transcription",
+        "complexity": "medium",
+        "tooling": ["word", "ocr_potentially"],
+        "automation_potential": "low",
+        "estimated_effort_hours": {
+          "min": 2,
+          "max": 10,
+          "note": "depends on volume and legibility"
+        },
+        "key_constraints": ["handwritten_source", "accuracy_over_speed"],
+        "data_dependency": "client_provided_handwritten_notes",
+        "requires_human_judgment": true,
+        "human_judgment_reason": "interpreting handwritten text"
+      }
+    },
+    {
+      "id": "ad_014",
+      "title": "PDF Text Data Entry",
+      "status": "open",
+      "platform": "freelancer",
+      "posted": {
+        "relative": "2 days ago",
+        "deadline_relative": "5 days"
+      },
+      "pricing": {
+        "type": "fixed",
+        "min": 12500,
+        "max": 37500,
+        "currency": "INR",
+        "payment_terms": "paid on delivery",
+        "note": "listed as $500 USD in header"
+      },
+      "description": "Convert PDF files to plain text (.txt) with accurate transcription, no formatting needed.",
+      "requirements": [
+        "Open each PDF and transcribe content",
+        "Double-check for typos and missing lines",
+        "Deliver as clean, unformatted TXT files",
+        "Name files exactly like originals"
+      ],
+      "skills_required": [
+        "Data entry",
+        "PDF reading",
+        "Text extraction",
+        "Attention to detail"
+      ],
+      "deliverables": [
+        "One .txt file per PDF, matching source word-for-word"
+      ],
+      "task_assessment": {
+        "category": "transcription",
+        "complexity": "low",
+        "tooling": ["pdf_reader", "text_editor"],
+        "automation_potential": "very_high",
+        "estimated_effort_hours": {
+          "min": 2,
+          "max": 20,
+          "note": "depends on PDF count and complexity"
+        },
+        "key_constraints": ["text_only_no_tables", "exact_filename_matching"],
+        "data_dependency": "client_provided_pdfs",
+        "requires_human_judgment": false
+      }
+    },
+    {
+      "id": "ad_015",
+      "title": "Fixed-Bid Research Project: Golf Playable Hours Analysis",
+      "status": "open",
+      "platform": "freelancer",
+      "posted": {
+        "relative": null,
+        "deadline_relative": null
+      },
+      "pricing": {
+        "type": "fixed",
+        "base_effort_hours": {
+          "min": 25,
+          "max": 40
+        },
+        "incremental_effort_hours": {
+          "min": 4,
+          "max": 6
+        },
+        "currency": null,
+        "payment_terms": "fixed bid, separate base + incremental pricing"
+      },
+      "description": "Research project using historical weather data (NOAA or commercial APIs) to estimate annual golf playable hours for Chicago with methodology for adding additional cities.",
+      "requirements": [
+        "Weather data source recommendation",
+        "Documented methodology and assumptions",
+        "Annual weather aggregation (2023-2025)",
+        "Optimistic/Base/Conservative playability scenarios",
+        "Annual golf playable hours calculation",
+        "Validation against known seasonality",
+        "Excel workbook with outputs",
+        "1-2 page executive summary"
+      ],
+      "skills_required": [
+        "Weather/climate data analysis",
+        "NOAA or commercial weather API familiarity",
+        "Excel",
+        "Research methodology",
+        "Technical writing"
+      ],
+      "deliverables": [
+        "Weather data source recommendation summary",
+        "Documented methodology",
+        "Annual weather aggregation table (2023-2025)",
+        "Annual golf playable hours table by scenario",
+        "Scenario comparison summary",
+        "Excel workbook",
+        "Executive summary (1-2 pages)"
+      ],
+      "task_assessment": {
+        "category": "research_analysis",
+        "complexity": "medium-high",
+        "tooling": ["excel", "weather_apis", "noaa_data"],
+        "automation_potential": "medium",
+        "estimated_effort_hours": {
+          "base_city": {
+            "min": 25,
+            "max": 40
+          },
+          "additional_city": {
+            "min": 4,
+            "max": 6
+          }
+        },
+        "key_constraints": [
+          "fixed_bid",
+          "chicago_base_city",
+          "2_week_timeline",
+          "defensible_methodology",
+          "repeatable_for_future_cities"
+        ],
+        "data_dependency": "external_weather_data",
+        "requires_human_judgment": true,
+        "human_judgment_reason": "defining playability assumptions, methodology decisions"
+      },
+      "out_of_scope": [
+        "Application/software development",
+        "Daily or monthly data delivery",
+        "Weather forecasting",
+        "Real-time integrations",
+        "Course-specific modeling",
+        "Revenue modeling"
+      ]
+    }
+  ],
+  "summary": {
+    "total_ads": 15,
+    "by_category": {
+      "data_entry": 2,
+      "data_visualization": 1,
+      "data_transformation": 1,
+      "data_analysis": 1,
+      "transcription": 2,
+      "spreadsheet_dashboard": 2,
+      "spreadsheet_formula": 1,
+      "document_conversion": 1,
+      "automation": 1,
+      "full_stack_development": 1,
+      "web_to_document": 1,
+      "research_analysis": 1
+    },
+    "by_complexity": {
+      "low": 5,
+      "low-medium": 1,
+      "medium": 5,
+      "medium-high": 2,
+      "high": 2
+    },
+    "by_automation_potential": {
+      "very_high": 4,
+      "high": 6,
+      "medium": 4,
+      "low": 1
+    },
+    "by_pricing_type": {
+      "hourly": 6,
+      "fixed": 9
+    }
+  }
+}
