@@ -1,0 +1,22 @@
+Excel Sheet Modification. Simple task for someone who knows excel
+Open
+Posted 1 day ago
+•
+Ends in 5 days
+$10-30 USD
+Paid on delivery
+I have a CSV that contains Column A plus another three to five accompanying columns. Every value in Column A needs an "@" prefixed to it. (at the front)
+
+Once that's done, the entire sheet must be re-sorted so that the shortest text in Column A appears first and the longest last. Please keep all other columns perfectly aligned with their corresponding rows during the sort.
+
+PLEASE REMOVE DUPLICATES. Would be grateful if someone can finish in less than a day for a tip.
+
+For someone who knows excel you can probably do this in 3
+
+Additional notes:
+• Several columns include special characters, so please leave those untouched.
+• While you work, remove any duplicate rows that may exist after the "@" is added.
+
+Deliverable: a single, cleaned CSV returned in the same structure, with "@" added, duplicates eliminated, and rows ordered from shortest to longest based on Column A.
+
+I missed adding the excel file. I am trying to figure out where to go back and add it.
