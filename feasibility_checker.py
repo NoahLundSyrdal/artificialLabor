@@ -71,23 +71,24 @@ Deliverables: {', '.join(job.get('deliverables', [])) if job.get('deliverables')
 
 Assess:
 1. FEASIBILITY: Can an LLM agent complete this task autonomously? Be critical - if it requires human judgment, creativity, communication, or physical presence, mark it NOT feasible.
-2. COST: Estimate the total tokens required for execution (input + output). Consider:
+2. COST: ALWAYS estimate total tokens required (even if not feasible). Consider:
    - Reading/parsing input files
    - Processing data
    - Generating outputs (code, documents, visualizations, etc.)
    - Any iterative refinement needed
+   If not feasible, estimate tokens for what WOULD be attempted before failure.
 
 Return ONLY valid JSON (no markdown, no code fences, no extra text):
 {{
   "is_feasible": true or false,
   "confidence": 0.0-1.0,
   "reasoning": "1-2 sentence explanation. No newlines inside this string.",
-  "estimated_tokens": number (total tokens for execution, including input and output),
+  "estimated_tokens": number (REQUIRED - always provide, even if not feasible),
   "estimated_hours": number or null,
   "risks": ["max 3 items"]
 }}
 
-CRITICAL: Output ONLY the JSON object. No markdown fences. No newlines inside string values. Escape all special characters.
+CRITICAL: Output ONLY the JSON object. No markdown fences. No newlines inside string values. Escape all special characters. estimated_tokens is REQUIRED.
 """
         
         # Call local LLM (shorter max_tokens to reduce truncation)
@@ -220,7 +221,7 @@ Return ONLY valid JSON matching this structure:
   "is_feasible": true or false,
   "confidence": 0.0-1.0,
   "reasoning": "1-2 sentences, no newlines",
-  "estimated_tokens": number,
+  "estimated_tokens": number (REQUIRED - always provide, even if not feasible),
   "estimated_hours": number or null,
   "risks": ["max 3 items"]
 }}"""
@@ -324,6 +325,42 @@ def _parse_text_response(text: str) -> Dict:
     reasoning = reasoning.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
     reasoning = ' '.join(reasoning.split())  # Normalize whitespace
     
+    # Extract estimated_tokens (REQUIRED field)
+    estimated_tokens = None
+    # Try with quotes first
+    tokens_match = re.search(r'"estimated_tokens"\s*:\s*([0-9]+|null)', text, re.IGNORECASE)
+    if tokens_match:
+        token_val = tokens_match.group(1).lower()
+        if token_val != 'null':
+            estimated_tokens = int(token_val)
+    else:
+        # Try without quotes
+        tokens_match = re.search(r'estimated_tokens\s*:\s*([0-9]+|null)', text, re.IGNORECASE)
+        if tokens_match:
+            token_val = tokens_match.group(1).lower()
+            if token_val != 'null':
+                estimated_tokens = int(token_val)
+        else:
+            # Try to find any number near "tokens"
+            tokens_match = re.search(r'tokens[^:]*:\s*([0-9]+)', text, re.IGNORECASE)
+            if tokens_match:
+                estimated_tokens = int(tokens_match.group(1))
+    
+    # Extract estimated_hours
+    estimated_hours = None
+    hours_match = re.search(r'"estimated_hours"\s*:\s*([0-9.]+|null)', text, re.IGNORECASE)
+    if hours_match:
+        hours_val = hours_match.group(1).lower()
+        if hours_val != 'null':
+            estimated_hours = float(hours_val) if '.' in hours_val else int(hours_val)
+    else:
+        # Try without quotes
+        hours_match = re.search(r'estimated_hours\s*:\s*([0-9.]+|null)', text, re.IGNORECASE)
+        if hours_match:
+            hours_val = hours_match.group(1).lower()
+            if hours_val != 'null':
+                estimated_hours = float(hours_val) if '.' in hours_val else int(hours_val)
+    
     # Extract risks
     risks = []
     risks_match = re.search(r'"risks"\s*:\s*\[(.*?)\]', text, re.DOTALL)
@@ -339,7 +376,8 @@ def _parse_text_response(text: str) -> Dict:
         "is_feasible": is_feasible,
         "confidence": confidence,
         "reasoning": reasoning,
-        "estimated_hours": None,
+        "estimated_tokens": estimated_tokens,
+        "estimated_hours": estimated_hours,
         "risks": risks
     }
 
