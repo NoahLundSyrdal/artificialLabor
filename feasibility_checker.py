@@ -47,6 +47,7 @@ def check_job_feasibility(job: Dict) -> Dict:
         - is_feasible: boolean
         - confidence: float (0-1)
         - reasoning: string explanation
+        - estimated_tokens: int (total tokens for execution)
         - estimated_hours: int (if feasible)
         - risks: list of potential issues
     """
@@ -64,15 +65,24 @@ Description: {job.get('description', 'N/A')}
 Requirements: {', '.join(job.get('requirements', [])) if job.get('requirements') else 'N/A'}
 Deliverables: {', '.join(job.get('deliverables', [])) if job.get('deliverables') else 'N/A'}"""
         
-        prompt = f"""Assess if this job is feasible for AI to complete autonomously. Be critical - if it requires human judgment, creativity, communication, or physical presence, mark it NOT feasible.
+        prompt = f"""You are a Task Assessor for an automated freelancing system. Evaluate this job posting to determine if it can be profitably completed by an LLM-based agent.
 
 {job_details}
+
+Assess:
+1. FEASIBILITY: Can an LLM agent complete this task autonomously? Be critical - if it requires human judgment, creativity, communication, or physical presence, mark it NOT feasible.
+2. COST: Estimate the total tokens required for execution (input + output). Consider:
+   - Reading/parsing input files
+   - Processing data
+   - Generating outputs (code, documents, visualizations, etc.)
+   - Any iterative refinement needed
 
 Return ONLY valid JSON (no markdown, no code fences, no extra text):
 {{
   "is_feasible": true or false,
   "confidence": 0.0-1.0,
   "reasoning": "1-2 sentence explanation. No newlines inside this string.",
+  "estimated_tokens": number (total tokens for execution, including input and output),
   "estimated_hours": number or null,
   "risks": ["max 3 items"]
 }}
@@ -91,6 +101,7 @@ CRITICAL: Output ONLY the JSON object. No markdown fences. No newlines inside st
             "is_feasible": bool(result.get("is_feasible", False)),
             "confidence": float(result.get("confidence", 0.5)),
             "reasoning": str(result.get("reasoning", response_text[:500])),
+            "estimated_tokens": result.get("estimated_tokens"),  # Token cost for execution
             "estimated_hours": result.get("estimated_hours"),
             "risks": result.get("risks", []),
             # Store raw outputs for logging
@@ -107,6 +118,7 @@ CRITICAL: Output ONLY the JSON object. No markdown fences. No newlines inside st
             "is_feasible": False,  # Default to NOT feasible on error (more conservative)
             "confidence": 0.2,
             "reasoning": f"Error during assessment: {str(e)}",
+            "estimated_tokens": None,
             "estimated_hours": None,
             "risks": ["Assessment error occurred"],
             "llm_prompt": "",
@@ -208,6 +220,7 @@ Return ONLY valid JSON matching this structure:
   "is_feasible": true or false,
   "confidence": 0.0-1.0,
   "reasoning": "1-2 sentences, no newlines",
+  "estimated_tokens": number,
   "estimated_hours": number or null,
   "risks": ["max 3 items"]
 }}"""
