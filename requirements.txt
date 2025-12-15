@@ -1,4 +1,4 @@
-tzafon
 python-dotenv
 httpx
 requests
+openai

@@ -1,181 +1,115 @@
 #!/usr/bin/env python3
 """
-General LLM client for local LM Studio instance.
+General LLM client for Tzafon API.
 Can be used throughout the pipeline for LLM interactions.
 """
 
-import json
-import urllib.request
-import urllib.parse
-import urllib.error
+import os
 from typing import Dict, List, Optional
+from dotenv import load_dotenv
+from openai import OpenAI
+
+# Load environment variables
+load_dotenv()
 
 
 class LLMClient:
-    """Client for interacting with local LLM (LM Studio)."""
+    """Client for interacting with Tzafon API."""
     
-    def __init__(self, base_url: str = "http://127.0.0.1:1234"):
+    def __init__(self, api_key: Optional[str] = None, base_url: str = "https://api.tzafon.ai/v1", 
+                 model: str = "tzafon.northstar.cua.sft"):
         """
         Initialize LLM client.
         
         Args:
-            base_url: Base URL of the LLM server (default: LM Studio local)
+            api_key: Tzafon API key (default: from TZAFON_API_KEY env var)
+            base_url: Base URL of the API (default: Tzafon API)
+            model: Model name to use (default: tzafon.northstar.cua.sft)
         """
-        self.base_url = base_url.rstrip('/')
-        self.chat_endpoint = f"{self.base_url}/v1/chat/completions"
-        self.completion_endpoint = f"{self.base_url}/v1/completions"
+        self.api_key = api_key or os.getenv("TZAFON_API_KEY")
+        if not self.api_key:
+            raise ValueError("TZAFON_API_KEY not found in environment variables")
+        
+        self.base_url = base_url
+        self.model = model
+        self.client = OpenAI(
+            api_key=self.api_key,
+            base_url=self.base_url
+        )
     
-    def chat(self, messages: List[Dict[str, str]], model: str = "local-model", 
+    def chat(self, messages: List[Dict[str, str]], model: Optional[str] = None, 
              temperature: float = 0.7, max_tokens: int = 1000, response_format: Optional[Dict] = None) -> str:
         """
         Send a chat completion request.
         
         Args:
             messages: List of message dicts with 'role' and 'content'
-            model: Model name (default: "local-model")
+            model: Model name (default: uses instance default)
             temperature: Sampling temperature
             max_tokens: Maximum tokens to generate
+            response_format: Optional response format (for structured output)
             
         Returns:
             Response text from the LLM
         """
-        payload = {
-            "model": model,
-            "messages": messages,
-            "temperature": temperature,
-            "max_tokens": max_tokens
-        }
+        model = model or self.model
         
-        # Add response_format if provided (for structured output/JSON schema)
-        if response_format:
-            payload["response_format"] = response_format
-        
-        return self._make_request(self.chat_endpoint, payload)
+        try:
+            kwargs = {
+                "model": model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens
+            }
+            
+            # Add response_format if provided (for structured output/JSON schema)
+            if response_format:
+                kwargs["response_format"] = response_format
+            
+            response = self.client.chat.completions.create(**kwargs)
+            return response.choices[0].message.content
+        except Exception as e:
+            raise Exception(f"Tzafon API error: {str(e)}")
     
-    def complete(self, prompt: str, model: str = "local-model",
+    def complete(self, prompt: str, model: Optional[str] = None,
                  temperature: float = 0.7, max_tokens: int = 1000) -> str:
         """
-        Send a simple text completion request.
+        Send a simple text completion request (converted to chat format).
         
         Args:
             prompt: The prompt text
-            model: Model name
+            model: Model name (default: uses instance default)
             temperature: Sampling temperature
             max_tokens: Maximum tokens to generate
             
         Returns:
             Response text from the LLM
         """
-        payload = {
-            "model": model,
-            "prompt": prompt,
-            "temperature": temperature,
-            "max_tokens": max_tokens
-        }
-        
-        return self._make_request(self.completion_endpoint, payload)
-    
-    def _make_request(self, url: str, payload: Dict) -> str:
-        """
-        Make HTTP request to LLM API.
-        
-        Args:
-            url: API endpoint URL
-            payload: Request payload
-            
-        Returns:
-            Response text
-        """
-        # Try httpx first, then requests, then urllib
-        # Increased timeout for LLM responses (some models are slow)
-        timeout_seconds = 120.0
-        
-        try:
-            import httpx
-            with httpx.Client(timeout=timeout_seconds) as client:
-                response = client.post(url, json=payload)
-                if response.status_code == 200:
-                    data = response.json()
-                    return self._extract_response(data)
-                else:
-                    raise Exception(f"API returned status {response.status_code}: {response.text}")
-        except ImportError:
-            try:
-                import requests
-                response = requests.post(url, json=payload, timeout=timeout_seconds)
-                if response.status_code == 200:
-                    data = response.json()
-                    return self._extract_response(data)
-                else:
-                    raise Exception(f"API returned status {response.status_code}: {response.text}")
-            except ImportError:
-                # Use built-in urllib
-                req_data = json.dumps(payload).encode('utf-8')
-                req = urllib.request.Request(
-                    url,
-                    data=req_data,
-                    headers={'Content-Type': 'application/json'}
-                )
-                try:
-                    with urllib.request.urlopen(req, timeout=timeout_seconds) as response:
-                        data = json.loads(response.read().decode('utf-8'))
-                        return self._extract_response(data)
-                except urllib.error.HTTPError as e:
-                    error_body = e.read().decode('utf-8')
-                    raise Exception(f"API returned status {e.code}: {error_body}")
-                except urllib.error.URLError as e:
-                    if "timed out" in str(e).lower():
-                        raise Exception(f"Request timed out after {timeout_seconds} seconds")
-                    raise
-    
-    def _extract_response(self, data: Dict) -> str:
-        """
-        Extract text response from API response data.
-        
-        Args:
-            data: Response JSON data
-            
-        Returns:
-            Extracted text
-        """
-        # Handle OpenAI-compatible format
-        if "choices" in data:
-            if isinstance(data["choices"], list) and len(data["choices"]) > 0:
-                choice = data["choices"][0]
-                if "message" in choice:
-                    return choice["message"].get("content", "")
-                elif "text" in choice:
-                    return choice["text"]
-        
-        # Handle other formats
-        if "text" in data:
-            return data["text"]
-        if "content" in data:
-            return data["content"]
-        if "response" in data:
-            return data["response"]
-        
-        # Fallback: return string representation
-        return str(data)
+        # Convert to chat format
+        messages = [{"role": "user", "content": prompt}]
+        return self.chat(messages, model=model, temperature=temperature, max_tokens=max_tokens)
 
 
 # Global client instance
 _default_client: Optional[LLMClient] = None
 
 
-def get_llm_client(base_url: str = "http://127.0.0.1:1234") -> LLMClient:
+def get_llm_client(api_key: Optional[str] = None, base_url: str = "https://api.tzafon.ai/v1",
+                   model: str = "tzafon.northstar.cua.sft") -> LLMClient:
     """
     Get or create the default LLM client.
     
     Args:
-        base_url: Base URL of the LLM server
+        api_key: Tzafon API key (default: from TZAFON_API_KEY env var)
+        base_url: Base URL of the API (default: Tzafon API)
+        model: Model name to use (default: tzafon.northstar.cua.sft)
         
     Returns:
         LLMClient instance
     """
     global _default_client
     if _default_client is None:
-        _default_client = LLMClient(base_url)
+        _default_client = LLMClient(api_key=api_key, base_url=base_url, model=model)
     return _default_client
 
 
