@@ -1,0 +1,10 @@
+{
+  "job_title": "Sales Data Visualization",
+  "status": "completed",
+  "success": true,
+  "deliverables": [
+    "output/revenue_by_product_pie.png",
+    "output/revenue_by_product_bar.png"
+  ],
+  "success_criteria": []
+}
