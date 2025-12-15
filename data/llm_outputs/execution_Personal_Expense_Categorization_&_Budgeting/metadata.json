@@ -1,0 +1,18 @@
+{
+  "job_title": "Personal Expense Categorization & Budgeting",
+  "status": "completed",
+  "success": true,
+  "deliverables": [
+    {
+      "name": "execute.py",
+      "type": "other",
+      "description": "Main execution script"
+    }
+  ],
+  "success_criteria": [
+    {
+      "criterion": "Script generated",
+      "passed": true
+    }
+  ]
+}

@@ -1,4 +1,14 @@
-tzafon
 python-dotenv
 httpx
 requests
+openai
+pandas
+numpy
+matplotlib
+openpyxl
+xlsxwriter
+pdfplumber
+PyPDF2
+python-docx
+beautifulsoup4
+Pillow

@@ -10,9 +10,12 @@ Pipeline steps:
 """
 
 import json
+import shutil
+from pathlib import Path
 from text_to_json import convert_text_to_json
 from feasibility_checker import check_all_jobs_feasibility, filter_feasible_jobs
 from proposal_generator import generate_proposals_for_feasible_jobs
+from task_executor import execute_all_tasks
 
 
 def main():
@@ -20,6 +23,17 @@ def main():
     print("=" * 60)
     print("Artificial Labor Pipeline")
     print("=" * 60)
+    
+    # Clear llm_outputs folder at start
+    llm_outputs_dir = Path("data/llm_outputs")
+    if llm_outputs_dir.exists():
+        print("\n[Initialization] Clearing llm_outputs folder...")
+        for item in llm_outputs_dir.iterdir():
+            if item.is_file():
+                item.unlink()
+            elif item.is_dir():
+                shutil.rmtree(item)
+        print("  ✓ Cleared llm_outputs folder")
     
     # Step 1: Convert text to JSON
     print("\n[Step 1] Converting text data to JSON...")
@@ -101,15 +115,51 @@ def main():
             print(f"\n📋 Sample proposal:")
             proposal = sample_job.get('proposal', {})
             print(f"   Job: {sample_job.get('title', 'Unknown')}")
-            print(f"   Greeting: {proposal.get('greeting', 'N/A')[:80]}...")
-            print(f"   Approach: {proposal.get('approach', 'N/A')[:80]}...")
+            greeting = str(proposal.get('greeting', 'N/A') or 'N/A')
+            approach = str(proposal.get('approach', 'N/A') or 'N/A')
+            print(f"   Greeting: {greeting[:80]}..." if len(greeting) > 80 else f"   Greeting: {greeting}")
+            print(f"   Approach: {approach[:80]}..." if len(approach) > 80 else f"   Approach: {approach}")
             print(f"   Deliverables: {len(proposal.get('deliverables', []))} items")
     
-    # Store data for next pipeline steps
-    # TODO: Step 4 - Actually doing the work
+    # Step 4: Execute feasible tasks
+    print("\n[Step 4] Executing feasible tasks...")
+    print("-" * 60)
+    
+    jobs_with_execution = execute_all_tasks(jobs_with_proposals, min_confidence=0.5)
+    data['jobs'] = jobs_with_execution
+    
+    # Count successful executions
+    executions_count = sum(1 for job in jobs_with_execution if 'execution' in job)
+    successful_count = 0
+    for job in jobs_with_execution:
+        if 'execution' in job:
+            exec_result = job.get('execution', {})
+            # Check both possible structures
+            exec_info = exec_result.get('execution', {})
+            if exec_info.get('success') is True:
+                successful_count += 1
+    
+    print(f"\n✓ Execution complete")
+    print(f"  Tasks executed: {executions_count}")
+    print(f"  Successful: {successful_count}")
+    print(f"  Failed: {executions_count - successful_count}")
+    
+    # Show sample execution result
+    if executions_count > 0:
+        sample_job = next((job for job in jobs_with_execution if 'execution' in job), None)
+        if sample_job:
+            print(f"\n📋 Sample execution result:")
+            execution_result = sample_job.get('execution', {})
+            exec_info = execution_result.get('execution', {})
+            print(f"   Job: {sample_job.get('title', 'Unknown')}")
+            print(f"   Status: {execution_result.get('status', 'N/A')}")
+            print(f"   Success: {exec_info.get('success', 'N/A')}")
+            if exec_info.get('wall_time_seconds'):
+                print(f"   Time: {exec_info.get('wall_time_seconds', 0):.1f}s")
+            print(f"   Deliverables: {len(execution_result.get('deliverables', []))} items")
     
     print("\n" + "=" * 60)
-    print("Step 3 complete. Ready for execution step.")
+    print("Pipeline complete! All steps finished.")
     print("=" * 60)
     
     return data
