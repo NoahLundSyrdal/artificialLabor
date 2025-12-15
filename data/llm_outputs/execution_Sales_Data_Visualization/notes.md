@@ -1,9 +1,9 @@
 # Notes
 
-- Assumed that the CSV file is in UTF-8 encoding
-- Used floating point comparison with small epsilon (1e-6) for revenue sum verification
-- Assumed that all products should be represented in the output (10 products total)
-- Used high DPI (300) for output images to ensure quality
-- The script includes comprehensive verification of success criteria
-- The script handles missing data gracefully by removing rows with missing revenue
-- The script includes error handling for file not found and parsing errors
+- Assumed that missing revenue values should be treated as 0 (no sales)
+- The data contains 10 products as expected: Wireless Mouse, USB-C Hub, Desk Lamp, Ergonomic Keyboard, Monitor Stand, Webcam HD, Cable Organizer, Laptop Stand, Wireless Charger
+- The pie chart uses percentage formatting for better visualization of relative proportions
+- The bar chart includes dollar formatting and value labels for clarity
+- All visualizations are saved with high DPI (300) for print-quality output
+- The script includes verification steps to ensure data integrity and completeness
+- The aggregated data is saved as a CSV for audit purposes

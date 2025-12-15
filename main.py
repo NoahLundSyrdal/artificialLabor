@@ -130,10 +130,14 @@ def main():
     
     # Count successful executions
     executions_count = sum(1 for job in jobs_with_execution if 'execution' in job)
-    successful_count = sum(
-        1 for job in jobs_with_execution 
-        if 'execution' in job and job.get('execution', {}).get('execution', {}).get('success', False)
-    )
+    successful_count = 0
+    for job in jobs_with_execution:
+        if 'execution' in job:
+            exec_result = job.get('execution', {})
+            # Check both possible structures
+            exec_info = exec_result.get('execution', {})
+            if exec_info.get('success') is True:
+                successful_count += 1
     
     print(f"\n✓ Execution complete")
     print(f"  Tasks executed: {executions_count}")

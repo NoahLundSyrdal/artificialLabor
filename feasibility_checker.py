@@ -51,18 +51,36 @@ def check_job_feasibility(job: Dict) -> Dict:
         - risks: list of potential issues
     """
     try:
-        # Use all structured data from the text_to_json step (parsed_result)
-        # This gives the LLM complete context for feasibility assessment
-        job_details = f"""Title: {job.get('title', 'N/A')}
-Status: {job.get('status', 'N/A')}
-Posted: {job.get('posted_time', 'N/A')}
-Ends: {job.get('ends_time', 'N/A')}
-Budget: {job.get('budget', 'N/A')}
-Payment Terms: {job.get('payment_terms', 'N/A')}
-Experience Level: {job.get('experience_level', 'N/A')}
-Description: {job.get('description', 'N/A')}
-Requirements: {', '.join(job.get('requirements', [])) if job.get('requirements') else 'N/A'}
-Deliverables: {', '.join(job.get('deliverables', [])) if job.get('deliverables') else 'N/A'}"""
+        # Normalize job data - check for fields with trailing spaces and merge
+        def get_field(job, *keys):
+            """Get field value, trying multiple key variations."""
+            for key in keys:
+                if key in job and job[key]:
+                    return job[key]
+            return None
+        
+        title = get_field(job, 'title', 'title ')
+        status = get_field(job, 'status', 'status ')
+        posted = get_field(job, 'posted_time', 'posted_time ', 'posted')
+        ends = get_field(job, 'ends_time', 'ends_time ', 'ends_in')
+        budget = get_field(job, 'budget', 'budget ', 'rate')
+        payment = get_field(job, 'payment_terms', 'payment_terms ')
+        exp_level = get_field(job, 'experience_level', 'experience_level ')
+        description = get_field(job, 'description', 'description ')
+        requirements = get_field(job, 'requirements', 'requirements ') or []
+        deliverables = get_field(job, 'deliverables', 'deliverables ') or []
+        
+        # Use all structured data from the text_to_json step
+        job_details = f"""Title: {title or 'N/A'}
+Status: {status or 'N/A'}
+Posted: {posted or 'N/A'}
+Ends: {ends or 'N/A'}
+Budget: {budget or 'N/A'}
+Payment Terms: {payment or 'N/A'}
+Experience Level: {exp_level or 'N/A'}
+Description: {description or 'N/A'}
+Requirements: {', '.join(requirements) if requirements else 'N/A'}
+Deliverables: {', '.join(deliverables) if deliverables else 'N/A'}"""
         
         prompt = f"""You are a Task Assessor for an automated freelancing system. Evaluate this job posting to determine if it can be profitably completed by an LLM-based agent with access to tools (Python libraries, APIs, file processing, etc.).
 

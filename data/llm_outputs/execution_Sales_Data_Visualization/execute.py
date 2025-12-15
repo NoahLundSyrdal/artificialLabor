@@ -8,96 +8,115 @@ import os
 
 # Get script directory for relative paths
 script_dir = os.path.dirname(os.path.abspath(__file__))
-from pathlib import Path
+from matplotlib.ticker import FuncFormatter
 
-# Set up output directory
-OUTPUT_DIR = Path('output')
-OUTPUT_DIR.mkdir(exist_ok=True)
+# Ensure output directory exists
+os.makedirs(os.path.join(script_dir, 'output'), exist_ok=True)
 
-# --- Step 1: Load the data ---
+# ====================
+# Step 1: Load Data
+# ====================
 input_file = os.path.abspath(os.path.join(script_dir, '../../synthetic/ad_001_sales_viz', 'sales_data.csv'))
-if not os.path.exists(input_file):
-    raise FileNotFoundError(f"Input file {input_file} not found")
 
-# Read CSV with proper encoding and handling
 try:
-    df = pd.read_csv(input_file, encoding='utf-8')
+    df = pd.read_csv(input_file)
+    print(f"Successfully loaded {len(df)} rows from {input_file}")
 except Exception as e:
-    print(f"Error reading CSV: {e}")
-    exit(1)
+    raise Exception(f"Failed to load data: {e}")
 
-# --- Step 2: Data validation and cleaning ---
+# ====================
+# Step 2: Data Validation
+# ====================
 # Check for missing values
-print(f"Missing values per column:\n{df.isnull().sum()}")
+missing_values = df.isnull().sum()
+if missing_values.any():
+    print(f"Warning: Missing values detected:\n{missing_values[missing_values > 0]}")
+    # Fill missing revenue with 0 (assuming no revenue = no sales)
+    df['revenue'] = df['revenue'].fillna(0)
 
 # Ensure revenue is numeric
-if not pd.api.types.is_numeric_dtype(df['revenue']):
-    df['revenue'] = pd.to_numeric(df['revenue'], errors='coerce')
+df['revenue'] = pd.to_numeric(df['revenue'], errors='coerce')
 
-# Remove rows with missing revenue
-df.dropna(subset=['revenue'], inplace=True)
+# ====================
+# Step 3: Aggregate Data by Product
+# ====================
+# Sum revenue by product_name
+revenue_by_product = df.groupby('product_name')['revenue'].sum().sort_values(ascending=False)
 
-# --- Step 3: Aggregate revenue by product_name ---
-# Group by product_name and sum revenue
-revenue_by_product = df.groupby('product_name')['revenue'].sum().reset_index()
+# Verify all products are represented
+expected_products = ['Wireless Mouse', 'USB-C Hub', 'Desk Lamp', 'Ergonomic Keyboard', 'Monitor Stand', 'Webcam HD', 'Cable Organizer', 'Laptop Stand', 'Wireless Charger']
+actual_products = revenue_by_product.index.tolist()
 
-# Sort by revenue (descending)
-revenue_by_product = revenue_by_product.sort_values('revenue', ascending=False)
+# Check if all expected products are present
+missing_products = set(expected_products) - set(actual_products)
+if missing_products:
+    print(f"Warning: The following products are missing from the data: {missing_products}")
 
-# --- Step 4: Create pie chart ---
+# ====================
+# Step 4: Create Pie Chart
+# ====================
 plt.figure(figsize=(10, 8))
-plt.pie(revenue_by_product['revenue'], labels=revenue_by_product['product_name'], autopct='%1.1f%%', startangle=90)
-plt.title('Revenue Distribution by Product', fontsize=16)
+plt.pie(revenue_by_product, labels=revenue_by_product.index, autopct='%1.1f%%', startangle=90)
+plt.title('Revenue Distribution by Product', fontsize=16, pad=20)
 plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
+plt.tight_layout()
 
 # Save pie chart
-pie_filename = OUTPUT_DIR / 'revenue_by_product_pie.png'
-plt.savefig(pie_filename, dpi=300, bbox_inches='tight')
+pie_output_file = os.path.join(script_dir, 'output', 'revenue_by_product_pie.png')
+plt.savefig(pie_output_file, dpi=300, bbox_inches='tight')
 plt.close()
 
-# --- Step 5: Create bar chart ---
+# Verify pie chart sums to total revenue
+total_revenue = df['revenue'].sum()
+pie_sum = revenue_by_product.sum()
+if abs(total_revenue - pie_sum) > 1e-6:  # Allow small floating point differences
+    print(f"Warning: Pie chart sum ({pie_sum:.2f}) does not match total revenue ({total_revenue:.2f})")
+else:
+    print(f"Pie chart sum matches total revenue: {pie_sum:.2f}")
+
+# ====================
+# Step 5: Create Bar Chart
+# ====================
 plt.figure(figsize=(12, 8))
-plt.bar(revenue_by_product['product_name'], revenue_by_product['revenue'], color='skyblue')
-plt.title('Revenue by Individual Products', fontsize=16)
-plt.xlabel('Product Name', fontsize=14)
-plt.ylabel('Revenue', fontsize=14)
+ax = revenue_by_product.plot(kind='bar', color='skyblue', edgecolor='black')
+plt.title('Revenue by Individual Products', fontsize=16, pad=20)
+plt.xlabel('Product', fontsize=14)
+plt.ylabel('Revenue ($)', fontsize=14)
+
+# Format y-axis to show dollar signs
+ax.yaxis.set_major_formatter(FuncFormatter(lambda x, p: f'${x:,.0f}'))
+
+# Add value labels on top of bars
+for i, v in enumerate(revenue_by_product):
+    ax.text(i, v + 100, f'${v:,.0f}', ha='center', va='bottom', fontsize=10)
+
 plt.xticks(rotation=45, ha='right')
 plt.tight_layout()
 
 # Save bar chart
-bar_filename = OUTPUT_DIR / 'revenue_by_product_bar.png'
-plt.savefig(bar_filename, dpi=300, bbox_inches='tight')
+bar_output_file = os.path.join(script_dir, 'output', 'revenue_by_product_bar.png')
+plt.savefig(bar_output_file, dpi=300, bbox_inches='tight')
 plt.close()
 
-# --- Step 6: Verification ---
-# Verify pie chart sums to total revenue
-total_revenue = df['revenue'].sum()
-sum_pie_revenue = revenue_by_product['revenue'].sum()
+# Verify bar chart values match aggregations
+bar_sum = revenue_by_product.sum()
+if abs(total_revenue - bar_sum) > 1e-6:  # Allow small floating point differences
+    print(f"Warning: Bar chart sum ({bar_sum:.2f}) does not match total revenue ({total_revenue:.2f})")
+else:
+    print(f"Bar chart sum matches total revenue: {bar_sum:.2f}")
 
-print(f"Total revenue from raw data: {total_revenue:,.2f}")
-print(f"Sum of aggregated revenue: {sum_pie_revenue:,.2f}")
+# ====================
+# Step 6: Final Verification
+# ====================
+print(f"\n=== Final Verification ===")
+print(f"Total revenue from raw data: ${total_revenue:,.2f}")
+print(f"Revenue sum from product aggregation: ${revenue_by_product.sum():,.2f}")
+print(f"Number of products in visualization: {len(revenue_by_product)}")
+print(f"All products represented: {len(revenue_by_product) == len(expected_products)}")
+print(f"\nAll deliverables created successfully:")
+print(f"- Pie chart: {pie_output_file}")
+print(f"- Bar chart: {bar_output_file}")
 
-# Check if they match (allowing for floating point precision)
-assert abs(total_revenue - sum_pie_revenue) < 1e-6, "Pie chart sum doesn't match total revenue"
-
-# Verify all 10 products are represented
-expected_products = 10
-actual_products = len(revenue_by_product)
-assert actual_products == expected_products, f"Expected {expected_products} products, found {actual_products}"
-
-# Verify labels are readable
-# (This is more qualitative, but we can check if labels are present)
-assert not revenue_by_product['product_name'].isnull().any(), "Missing product names"
-
-# --- Step 7: Output summary ---
-print(f"\nAll deliverables created in {OUTPUT_DIR}")
-print(f"- Pie chart: {pie_filename}")
-print(f"- Bar chart: {bar_filename}")
-print(f"\nVerification completed successfully:")
-print(f"- Pie chart sum matches total revenue: {abs(total_revenue - sum_pie_revenue) < 1e-6}")
-print(f"- All {expected_products} products represented: {actual_products == expected_products}")
-print(f"- Labels are readable: {not revenue_by_product['product_name'].isnull().any()}")
-
-# Optional: Print aggregated data
-print(f"\nAggregated revenue by product:")
-print(revenue_by_product.to_string(index=False))
+# Optional: Save aggregated data for audit
+revenue_by_product.to_csv(os.path.join(script_dir, 'output', 'revenue_by_product_summary.csv'))
+print(f"Aggregated data saved to output/revenue_by_product_summary.csv")

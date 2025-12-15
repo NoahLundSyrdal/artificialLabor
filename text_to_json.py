@@ -84,6 +84,22 @@ Return JSON matching the schema. Include raw_text field with the original text.
         if "raw_text" not in result:
             result["raw_text"] = text.strip()
         
+        # Normalize field names (remove trailing spaces) and merge duplicates
+        normalized_result = {}
+        for key, value in result.items():
+            normalized_key = key.rstrip()
+            # If we have both "field " and "field", prefer the one with actual content
+            if normalized_key in normalized_result:
+                # Keep the non-empty value
+                if value and not normalized_result[normalized_key]:
+                    normalized_result[normalized_key] = value
+                elif isinstance(value, list) and value and not normalized_result[normalized_key]:
+                    normalized_result[normalized_key] = value
+            else:
+                normalized_result[normalized_key] = value
+        
+        result = normalized_result
+        
         # Ensure all expected fields exist (set to empty string/array if missing)
         expected_fields = {
             "title": "",
