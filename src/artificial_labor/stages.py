@@ -25,16 +25,19 @@ class AdSource:
     text: str
     brief: dict | None
     inputs: list[Path]
+    source: dict | None = None
 
     @classmethod
     def load(cls, path: Path) -> AdSource:
         brief_path = path / "brief.json"
+        source_path = path / "source.json"
         return cls(
             id=path.name,
             dir=path,
             text=(path / "ad.md").read_text(encoding="utf-8"),
             brief=json.loads(brief_path.read_text()) if brief_path.exists() else None,
             inputs=list_files(path / "inputs"),
+            source=json.loads(source_path.read_text()) if source_path.exists() else None,
         )
 
     def context(self) -> str:
