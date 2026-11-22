@@ -22,9 +22,10 @@ def _status(r: JobRecord) -> str:
         return "proposal only"
     if r.execution.status != "succeeded":
         return f"execution {r.execution.status}"
+    sample = " (sample data)" if r.synthetic_inputs else ""
     if r.verification is None:
-        return "executed"
-    return "delivered" if r.verification.passed else "QA failed"
+        return "executed" + sample
+    return ("delivered" if r.verification.passed else "QA failed") + sample
 
 
 def render(records: list[JobRecord], total: Usage, settings_desc: str) -> str:
@@ -83,6 +84,9 @@ def render(records: list[JobRecord], total: Usage, settings_desc: str) -> str:
             lines.append(
                 f"- Execution: {x.status} ({x.attempts} attempt(s), {x.seconds}s) {x.reason}"
             )
+            if r.synthetic_inputs:
+                files = ", ".join(f"`{f}`" for f in r.synthetic_inputs)
+                lines.append(f"- Inputs: synthetic sample data in `sample/inputs/` ({files})")
             if x.outputs:
                 lines.append(f"- Outputs: {', '.join(f'`{o}`' for o in x.outputs)}")
         if r.verification:

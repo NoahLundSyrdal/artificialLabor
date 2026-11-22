@@ -52,8 +52,8 @@ schedule, use cron, e.g. hourly:
 
 Nothing is ever sent to Freelancer. Each run's `report.md` has a **Review queue** with the bid,
 a link to the listing, the proposal and any deliverables; you decide what to submit. Live
-listings rarely include the client's files, so most jobs stop at a proposal; the agent only does
-the work up front when everything it needs is in the ad.
+listings rarely include the client's files, so the agent does the work on generated sample data
+(see below); jobs that need logins, calls or deployment are still declined.
 
 Check the [User Agreement](https://www.freelancer.com/about/terms) and
 [API terms](https://www.freelancer.com/about/apiterms) before running this regularly: the User
@@ -82,7 +82,11 @@ data/ads/07-excel-csv-prefix-sort-dedupe/
 
 The ads in this repo are real postings collected in Dec 2025.
 The `inputs/` and `brief.json` files are synthetic stand-ins for what the client would send.
-Jobs that need client files the folder doesn't have get a proposal but are not executed.
+When a job needs client files the folder doesn't have, the code model first writes a script that
+generates realistic sample files from the ad (into `sample/inputs/`), then does the work on those.
+The report marks these jobs `(sample data)`: the deliverable is a working demo to show with the
+bid, to be rerun on the client's real files once you win it. `--no-synthetic` turns this off and
+stops at the proposal instead.
 
 ## Output
 
@@ -93,6 +97,7 @@ runs/<timestamp>/
 └── jobs/<id>/
     ├── record.json            # parsed job, assessment, economics, decision, QA, LLM usage
     ├── proposal.md
+    ├── sample/                # only if client files were missing: make_inputs.py, inputs/
     └── workspace/             # inputs/, solution.py, outputs/ (the deliverables)
 ```
 

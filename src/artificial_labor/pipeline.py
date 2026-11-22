@@ -60,10 +60,22 @@ def process(
         if not execute:
             return save()
         if assessment.needs_client_files and not ad.inputs:
-            record.execution = stages.Execution(
-                status="skipped", reason="Waiting for the client's files."
-            )
-            return save()
+            waiting = "Waiting for the client's files."
+            if not s.synthetic_inputs:
+                record.execution = stages.Execution(status="skipped", reason=waiting)
+                return save()
+            log.info("[%s] generating sample inputs", ad.id)
+            sample = stages.synthesize(
+                llm, ad, job, job_dir / "sample", max_attempts=s.max_attempts,
+                timeout=s.script_timeout,
+            )  # fmt: skip
+            if sample is None:
+                record.execution = stages.Execution(
+                    status="skipped", reason=f"{waiting} Could not generate sample inputs."
+                )
+                return save()
+            ad = sample
+            record.synthetic_inputs = [str(p.relative_to(ad.dir / "inputs")) for p in ad.inputs]
 
         log.info("[%s] executing", ad.id)
         workspace = job_dir / "workspace"

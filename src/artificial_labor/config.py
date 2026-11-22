@@ -71,6 +71,7 @@ class Settings:
     # Execution
     max_attempts: int = 3
     script_timeout: int = 180
+    synthetic_inputs: bool = True
     extra: dict[str, str] = field(default_factory=dict)
 
     def price(self, model: str) -> tuple[float, float]:

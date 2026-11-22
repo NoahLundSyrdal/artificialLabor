@@ -6,14 +6,15 @@ import base64
 import json
 import shutil
 import time
-from dataclasses import dataclass
+from collections.abc import Callable
+from dataclasses import dataclass, replace
 from importlib.util import find_spec
 from pathlib import Path
 
 from artificial_labor.files import describe, list_files
 from artificial_labor.llm import LLM, extract_code
 from artificial_labor.models import Assessment, Economics, Execution, Job, Verification
-from artificial_labor.sandbox import run_python
+from artificial_labor.sandbox import RunResult, run_python
 
 
 @dataclass
@@ -26,6 +27,7 @@ class AdSource:
     brief: dict | None
     inputs: list[Path]
     source: dict | None = None
+    synthetic: bool = False
 
     @classmethod
     def load(cls, path: Path) -> AdSource:
@@ -48,7 +50,14 @@ class AdSource:
                 "Additional details from the client (brief.json):\n" + json.dumps(self.brief)
             )
         names = [str(p.relative_to(self.dir / "inputs")) for p in self.inputs]
-        parts.append(f"Files provided by the client: {names or 'none'}")
+        if self.synthetic:
+            parts.append(
+                "The client has not sent their files yet. ./inputs/ holds SYNTHETIC sample "
+                f"files generated from the ad as stand-ins: {names}. Build the deliverable so it "
+                "works unchanged on the client's real files; judge it against the sample data."
+            )
+        else:
+            parts.append(f"Files provided by the client: {names or 'none'}")
         return "\n\n".join(parts)
 
 
@@ -57,7 +66,8 @@ SYSTEM_ANALYST = (
     "can write and run Python scripts with common data libraries (pandas, openpyxl, matplotlib, "
     "python-docx, pdfplumber, reportlab, sqlite3). It cannot browse interactively, see images "
     "unless they are provided, log into client accounts, attend calls, or be present daily. "
-    "Be calibrated and skeptical."
+    "Missing client files are not a blocker: the agent builds and demonstrates the work on "
+    "realistic sample data first, then reruns it on the real files. Be calibrated and skeptical."
 )
 
 
@@ -143,6 +153,98 @@ EXECUTOR_RULES = """Rules for the script:
 Reply with one complete Python script in a single ```python code block."""
 
 
+def _write_and_run(
+    llm: LLM,
+    messages: list[dict],
+    script_path: Path,
+    out_dir: Path,
+    *,
+    produced: Callable[[], bool],
+    max_attempts: int,
+    timeout: int,
+) -> tuple[int, RunResult | None, bool]:
+    """Ask for a script, run it in `script_path.parent`, feed errors back; retry until ok."""
+    cwd = script_path.parent
+    result = None
+    for attempt in range(1, max_attempts + 1):
+        reply = llm.complete(messages, code=True, temperature=0.2, max_tokens=12000)
+        script_path.write_text(extract_code(reply), encoding="utf-8")
+        # Each attempt starts from a clean output dir.
+        shutil.rmtree(out_dir, ignore_errors=True)
+        out_dir.mkdir(parents=True)
+        result = run_python(script_path, cwd=cwd, timeout=timeout)
+        if result.ok and produced():
+            return attempt, result, True
+        problem = (
+            f"The script failed (exit code {result.returncode}"
+            f"{', timed out' if result.timed_out else ''}).\nstderr:\n{result.stderr[-4000:]}"
+            if not result.ok
+            else f"The script exited cleanly but wrote no files to ./{out_dir.name}/."
+        )
+        if "ModuleNotFoundError" in result.stderr:
+            problem += (
+                "\nThat module is not installed and cannot be installed. Use only: "
+                f"{', '.join(available_libraries())}."
+            )
+        messages += [
+            {"role": "assistant", "content": reply},
+            {
+                "role": "user",
+                "content": f"{problem}\nstdout:\n{result.stdout[-1500:]}\n\nFix the problem and "
+                "reply with the complete corrected script.",
+            },
+        ]
+    return max_attempts, result, False
+
+
+SYNTH_RULES = """Write one Python 3 program that creates realistic SYNTHETIC stand-ins for the
+files the client will send, in ./inputs/ (create it).
+- Create only the files this client says they will send (usually 1-3), in the format and
+  structure the ad describes or implies. Don't add other formats "just in case".
+- Use plausible names, dates and amounts from hand-written lists and `random` (seeded);
+  never real people's data. Check list lengths match before building tables.
+- Include the messiness the job is about (duplicates, inconsistent formats, blanks, typos), so
+  the solution is actually exercised. Keep it small: at most a few hundred rows per file.
+- Do NOT produce the deliverables themselves, only the client's input files.
+- Use only these libraries: {libs}. No network access, no user input.
+- Print the files created. Exit non-zero on failure.
+Reply with the complete program in a single ```python code block."""
+
+
+def synthesize(
+    llm: LLM, ad: AdSource, job: Job, dest: Path, *, max_attempts: int, timeout: int
+) -> AdSource | None:
+    """Generate sample client files under `dest/inputs/`; returns the ad pointing at them."""
+    if dest.exists():
+        shutil.rmtree(dest)
+    dest.mkdir(parents=True)
+    messages = [
+        {
+            "role": "system",
+            "content": "You generate realistic synthetic sample data files for software "
+            "demos by writing a single Python program.",
+        },
+        {
+            "role": "user",
+            "content": f"Job:\n{job.model_dump_json(indent=2)}\n\nOriginal ad:\n---\n{ad.text}\n"
+            f"---\n\nThe client will provide: {job.client_provides or 'see the ad'}\n\n"
+            + SYNTH_RULES.format(libs=", ".join(available_libraries())),
+        },
+    ]
+    _, _, ok = _write_and_run(
+        llm,
+        messages,
+        dest / "make_inputs.py",
+        dest / "inputs",
+        produced=lambda: bool(list_files(dest / "inputs")),
+        max_attempts=max_attempts,
+        timeout=timeout,
+    )
+    if not ok:
+        return None
+    return replace(ad, dir=dest, inputs=list_files(dest / "inputs"), synthetic=True)
+
+
 def execute(
     llm: LLM,
     ad: AdSource,
@@ -177,45 +279,22 @@ def execute(
         },
     ]
     script_path = workspace / "solution.py"
-    result = None
-    for attempt in range(1, max_attempts + 1):
-        reply = llm.complete(messages, code=True, temperature=0.2, max_tokens=12000)
-        script_path.write_text(extract_code(reply), encoding="utf-8")
-        # Each attempt starts from a clean outputs dir.
-        shutil.rmtree(workspace / "outputs")
-        (workspace / "outputs").mkdir()
-        result = run_python(script_path, cwd=workspace, timeout=timeout)
-        outputs = list_files(workspace / "outputs")
-        if result.ok and deliverables(workspace):
-            return Execution(
-                status="succeeded",
-                attempts=attempt,
-                outputs=[str(p.relative_to(workspace)) for p in outputs],
-                script=str(script_path),
-                stdout_tail=result.stdout[-2000:],
-                seconds=round(time.monotonic() - started, 1),
-            )
-        problem = (
-            f"The script failed (exit code {result.returncode}"
-            f"{', timed out' if result.timed_out else ''}).\nstderr:\n{result.stderr[-4000:]}"
-            if not result.ok
-            else "The script exited cleanly but wrote no deliverables to ./outputs/."
-        )
-        messages += [
-            {"role": "assistant", "content": reply},
-            {
-                "role": "user",
-                "content": f"{problem}\nstdout:\n{result.stdout[-1500:]}\n\nFix the problem and "
-                "reply with the complete corrected script.",
-            },
-        ]
+    attempts, result, ok = _write_and_run(
+        llm,
+        messages,
+        script_path,
+        workspace / "outputs",
+        produced=lambda: bool(deliverables(workspace)),
+        max_attempts=max_attempts,
+        timeout=timeout,
+    )
     return Execution(
-        status="failed",
-        attempts=max_attempts,
+        status="succeeded" if ok else "failed",
+        attempts=attempts,
         outputs=[str(p.relative_to(workspace)) for p in list_files(workspace / "outputs")],
         script=str(script_path),
         stdout_tail=result.stdout[-2000:] if result else "",
-        error=(result.stderr[-2000:] if result else None) or "No deliverables produced.",
+        error=None if ok else (result and result.stderr[-2000:]) or "No deliverables produced.",
         seconds=round(time.monotonic() - started, 1),
     )
 

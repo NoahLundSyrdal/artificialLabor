@@ -52,6 +52,11 @@ def build_parser() -> argparse.ArgumentParser:
     for cmd in (run, fetch):
         cmd.add_argument("--no-execute", action="store_true", help="Stop after proposals.")
         cmd.add_argument(
+            "--no-synthetic",
+            action="store_true",
+            help="Don't generate sample inputs when the client's files are missing.",
+        )
+        cmd.add_argument(
             "--force", action="store_true", help="Propose/execute even when the decision is no-go."
         )
         cmd.add_argument("--workers", type=int, default=4, help="Ads processed in parallel.")
@@ -118,6 +123,9 @@ def main(argv: list[str] | None = None) -> int:
     ]:
         if getattr(args, arg) is not None:
             setattr(settings, attr, getattr(args, arg))
+
+    if args.no_synthetic:
+        settings.synthetic_inputs = False
 
     if ads is None:
         ads = pipeline.discover(args.ads, args.only)

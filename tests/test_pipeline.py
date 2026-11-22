@@ -24,6 +24,8 @@ def responder(script_replies):
             return "```python\nprint('PASS: @ prefix - all rows')\n```"
         if "Python 3 script" in system:
             return next(replies)
+        if "synthetic sample data" in system:
+            return next(replies)
         raise AssertionError(f"unexpected prompt: {system[:80]}")
 
     return respond
@@ -61,10 +63,36 @@ def test_execution_retries_after_failure(make_llm, ad_dir, tmp_path):
     assert "oops" in code_requests[1][-1]["content"]
 
 
+SAMPLE_SCRIPT = """```python
+import os
+os.makedirs("inputs", exist_ok=True)
+open("inputs/data.csv", "w").write("handle,n\\nb,1\\naa,2\\nb,1\\n")
+```"""
+
+
+def test_generates_sample_inputs_when_client_files_missing(make_llm, ad_dir, tmp_path):
+    for f in (ad_dir / "inputs").iterdir():
+        f.unlink()
+    llm = make_llm(responder(["```python\nprint('no files')\n```", SAMPLE_SCRIPT, GOOD_SCRIPT]))
+    (r,) = pipeline.run(llm, [AdSource.load(ad_dir)], tmp_path / "run")
+    assert r.error is None
+    assert r.synthetic_inputs == ["data.csv"]
+    assert r.execution.status == "succeeded" and r.verification.passed
+    executor_prompt = next(
+        m for _, m in llm.backend.requests if "Python 3 script" in m[0]["content"]
+    )[1]["content"]
+    assert "SYNTHETIC" in executor_prompt and "handle,n" in executor_prompt
+    job_dir = tmp_path / "run" / "jobs" / "01-csv-prefix"
+    out = (job_dir / "workspace" / "outputs" / "cleaned.csv").read_text().splitlines()
+    assert out == ["handle,n", "@b,1", "@aa,2"]
+    assert "delivered (sample data)" in report.render([r], llm.usage, "fake")
+
+
 def test_skips_execution_when_client_files_missing(make_llm, ad_dir, tmp_path):
     for f in (ad_dir / "inputs").iterdir():
         f.unlink()
     llm = make_llm(responder([]))
+    llm.settings.synthetic_inputs = False
     (r,) = pipeline.run(llm, [AdSource.load(ad_dir)], tmp_path / "run")
     assert r.execution.status == "skipped"
     assert r.proposal
