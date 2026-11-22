@@ -33,6 +33,34 @@ artificial-labor run --only 01 07          # a couple of jobs
 artificial-labor run                       # everything, results in runs/<timestamp>/
 ```
 
+### Fetching live jobs from Freelancer.com
+
+```bash
+artificial-labor fetch "excel csv" --limit 20 --type fixed          # saves to data/fetched/
+artificial-labor fetch "excel csv" --limit 20 --run                 # ...and runs the pipeline on new ones
+```
+
+`fetch` makes one request to Freelancer's public
+[projects API](https://www.freelancer.com/api/projects/0.1/projects/active/) (no account needed),
+writes each new project as `data/fetched/fl-<id>-<slug>/{ad.md, source.json}`, skips ids it
+already has and deletes fetched ads older than `--max-age-hours` (default 24). To run it on a
+schedule, use cron, e.g. hourly:
+
+```
+0 * * * * cd /path/to/artificialLabor && .venv/bin/artificial-labor fetch "excel csv" --run
+```
+
+Nothing is ever sent to Freelancer. Each run's `report.md` has a **Review queue** with the bid,
+a link to the listing, the proposal and any deliverables; you decide what to submit. Live
+listings rarely include the client's files, so most jobs stop at a proposal; the agent only does
+the work up front when everything it needs is in the ad.
+
+Check the [User Agreement](https://www.freelancer.com/about/terms) and
+[API terms](https://www.freelancer.com/about/apiterms) before running this regularly: the User
+Agreement (section 33) prohibits automated access, including via the API, without Freelancer's
+written permission, while the API terms license use of the API for applications. Keep request
+volume low, and don't submit AI-generated work without reviewing it.
+
 Useful flags: `--no-execute` (stop after proposals), `--force` (run no-go jobs anyway),
 `--workers N`, `--max-attempts N`, `--timeout SECONDS`, `--min-score`, `--min-margin`.
 
@@ -48,6 +76,7 @@ Each job is a folder in `data/ads/`:
 data/ads/07-excel-csv-prefix-sort-dedupe/
 ├── ad.md          # the ad text, pasted as-is from the marketplace
 ├── brief.json     # optional: extra details/acceptance criteria the client sent later
+├── source.json    # optional: where the ad came from ({"url": ...}), written by `fetch`
 └── inputs/        # optional: files the client provided
 ```
 

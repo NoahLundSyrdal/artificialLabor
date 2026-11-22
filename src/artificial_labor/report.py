@@ -48,9 +48,28 @@ def render(records: list[JobRecord], total: Usage, settings_desc: str) -> str:
             f"| {_money(e.revenue_usd if e else None)} | {_money(e.cost_usd if e else None, 4)} "
             f"| {margin} | {_status(r)} | {qa} | {_money(r.usage.cost_usd, 4)} |"
         )
+    queue = [r for r in records if r.proposal and not r.error]
+    if queue:
+        lines += [
+            "",
+            "## Review queue",
+            "",
+            "Nothing has been sent. Read the proposal (and deliverables, if any) before bidding.",
+            "",
+        ]
+        for r in queue:
+            title = r.job.title if r.job else r.id
+            bid = r.economics.bid_local if r.economics and r.economics.bid_local else "-"
+            listing = f" - [listing]({r.url})" if r.url else ""
+            lines.append(
+                f"- **{title}**: bid {bid}, {_status(r)}{listing} - "
+                f"[proposal](jobs/{r.id}/proposal.md)"
+            )
     lines += ["", "## Details", ""]
     for r in records:
         lines.append(f"### {r.job.title if r.job else r.id}")
+        if r.url:
+            lines.append(f"- Listing: {r.url}")
         if r.error:
             lines.append(f"- Error: `{r.error}`")
         if r.decision:

@@ -114,6 +114,7 @@ class Execution(BaseModel):
 
 class JobRecord(BaseModel):
     id: str
+    url: str | None = None
     job: Job | None = None
     assessment: Assessment | None = None
     score: float | None = None

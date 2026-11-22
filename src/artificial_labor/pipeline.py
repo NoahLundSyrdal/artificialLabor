@@ -26,7 +26,7 @@ def process(
     """Run one ad through every stage, saving artifacts to `job_dir`."""
     s = llm.settings
     llm = llm.child()
-    record = JobRecord(id=ad.id)
+    record = JobRecord(id=ad.id, url=(ad.source or {}).get("url"))
     job_dir.mkdir(parents=True, exist_ok=True)
 
     def save() -> JobRecord:
