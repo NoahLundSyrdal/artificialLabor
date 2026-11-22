@@ -127,5 +127,8 @@ class JobRecord(BaseModel):
     )
     execution: Execution | None = None
     verification: Verification | None = None
+    qa_history: list[float] = Field(
+        default_factory=list, description="QA score after the first delivery and each fix round"
+    )
     usage: Usage = Field(default_factory=Usage)
     error: str | None = None

@@ -92,6 +92,9 @@ def render(records: list[JobRecord], total: Usage, settings_desc: str) -> str:
         if r.verification:
             v = r.verification
             lines.append(f"- QA: {'pass' if v.passed else 'fail'} ({v.score:.2f}) - {v.summary}")
+            if len(r.qa_history) > 1:
+                scores = " -> ".join(f"{s:.2f}" for s in r.qa_history)
+                lines.append(f"- Fix rounds: {len(r.qa_history) - 1} (QA scores {scores})")
             auto = v.automated_checks.splitlines()
             passes = sum(line.startswith("PASS") for line in auto)
             fails = sum(line.startswith("FAIL") for line in auto)
