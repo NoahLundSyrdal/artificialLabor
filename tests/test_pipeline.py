@@ -5,8 +5,9 @@ from artificial_labor.stages import AdSource
 from tests.conftest import ASSESSMENT, GOOD_SCRIPT, JOB, VERIFICATION, last_text
 
 
-def responder(script_replies):
+def responder(script_replies, verifications=None):
     replies = iter(script_replies)
+    qa = iter(verifications or [])
 
     def respond(messages, model):
         system, user = messages[0]["content"], last_text(messages)
@@ -19,7 +20,7 @@ def responder(script_replies):
         if "QA reviewer" in system:
             assert "cleaned.csv" in user  # the reviewer sees the delivered file
             assert "PASS: @ prefix" in user  # ...and the automated check results
-            return json.dumps(VERIFICATION)
+            return json.dumps(next(qa, VERIFICATION))
         if "acceptance checks" in system:
             return "```python\nprint('PASS: @ prefix - all rows')\n```"
         if "Python 3 script" in system:
@@ -104,3 +105,30 @@ def test_errors_are_recorded_not_raised(make_llm, ad_dir, tmp_path):
 
     (r,) = pipeline.run(make_llm(broken), [AdSource.load(ad_dir)], tmp_path / "run")
     assert r.error == "ConnectionError: api down"
+
+
+FAIL = {"passed": False, "score": 0.5, "checks": [{"criterion": "sorted", "passed": False,
+        "notes": "not sorted by length"}], "summary": "unsorted"}  # fmt: skip
+BAD_SCRIPT = """```python
+import os
+os.makedirs("outputs", exist_ok=True)
+open("outputs/cleaned.csv", "w").write("x")
+```"""
+
+
+def test_failed_qa_gets_a_fix_round(make_llm, ad_dir, tmp_path):
+    llm = make_llm(responder([GOOD_SCRIPT, GOOD_SCRIPT], [FAIL, VERIFICATION]))
+    (r,) = pipeline.run(llm, pipeline.discover(ad_dir.parent), tmp_path / "run")
+    assert r.verification.passed and r.qa_history == [0.5, 1.0]
+    fix_prompt = [m for _, m in llm.backend.requests if "Python 3 script" in m[0]["content"]][1]
+    assert "not sorted by length" in fix_prompt[1]["content"]
+    assert "Fix rounds: 1 (QA scores 0.50 -> 1.00)" in report.render([r], llm.usage, "fake")
+
+
+def test_worse_fix_is_reverted(make_llm, ad_dir, tmp_path):
+    worse = {**FAIL, "score": 0.2}
+    llm = make_llm(responder([GOOD_SCRIPT, BAD_SCRIPT], [FAIL, worse]))
+    (r,) = pipeline.run(llm, pipeline.discover(ad_dir.parent), tmp_path / "run")
+    assert r.verification.score == 0.5 and r.qa_history == [0.5, 0.5]
+    outputs = tmp_path / "run" / "jobs" / "01-csv-prefix" / "workspace" / "outputs"
+    assert (outputs / "cleaned.csv").read_text().splitlines() == ["handle,n", "@b,1", "@aa,2"]

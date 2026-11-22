@@ -348,6 +348,79 @@ def automated_checks(llm: LLM, ad: AdSource, job: Job, workspace: Path, *, timeo
     return out.strip()
 
 
+def revise(
+    llm: LLM,
+    ad: AdSource,
+    job: Job,
+    workspace: Path,
+    qa: Verification,
+    *,
+    max_attempts: int,
+    timeout: int,
+) -> tuple[Execution, Verification] | None:
+    """One fix round driven by QA findings.
+
+    Keeps the new delivery only if it passes or scores higher; otherwise restores the previous
+    one and returns None.
+    """
+    started = time.monotonic()
+    backup = workspace.parent / "previous"
+    shutil.rmtree(backup, ignore_errors=True)
+    shutil.copytree(workspace / "outputs", backup / "outputs")
+    kept = [f for f in ("solution.py", "checks.py") if (workspace / f).exists()]
+    for f in kept:
+        shutil.copy2(workspace / f, backup / f)
+
+    script_path = workspace / "solution.py"
+    failed = "\n".join(f"- {c.criterion}: {c.notes}" for c in qa.checks if not c.passed)
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a senior freelancer who completes jobs by writing a single, "
+            "self-contained Python 3 script that produces the deliverables.",
+        },
+        {
+            "role": "user",
+            "content": f"Job:\n{job.model_dump_json(indent=2)}\n\nOriginal ad:\n---\n{ad.text}\n"
+            f"---\n\n{ad.context()}\n\nContents of ./inputs/:\n"
+            f"{describe(list_files(workspace / 'inputs'), workspace / 'inputs')}\n\n"
+            f"Your previous script:\n```python\n{script_path.read_text()}\n```\n\n"
+            f"QA rejected the delivery it produced (score {qa.score:.2f}): {qa.summary}\n"
+            f"Failed criteria:\n{failed or '- (see summary)'}\n\n"
+            f"Automated checks output:\n{qa.automated_checks or '(none)'}\n\n"
+            "Fix every issue QA found without breaking what already worked. If a QA finding "
+            "is wrong, keep that part and explain why in NOTES.md.\n\n"
+            + EXECUTOR_RULES.format(libs=", ".join(available_libraries())),
+        },
+    ]
+    attempts, result, ok = _write_and_run(
+        llm,
+        messages,
+        script_path,
+        workspace / "outputs",
+        produced=lambda: bool(deliverables(workspace)),
+        max_attempts=max_attempts,
+        timeout=timeout,
+    )
+    if ok:
+        new_qa = verify(llm, ad, job, workspace, timeout=timeout)
+        if new_qa.passed or new_qa.score > qa.score:
+            execution = Execution(
+                status="succeeded",
+                attempts=attempts,
+                outputs=[str(p.relative_to(workspace)) for p in list_files(workspace / "outputs")],
+                script=str(script_path),
+                stdout_tail=result.stdout[-2000:],
+                seconds=round(time.monotonic() - started, 1),
+            )
+            return execution, new_qa
+    shutil.rmtree(workspace / "outputs")
+    shutil.copytree(backup / "outputs", workspace / "outputs")
+    for f in kept:
+        shutil.copy2(backup / f, workspace / f)
+    return None
+
+
 def deliverables(workspace: Path) -> list[Path]:
     return [p for p in list_files(workspace / "outputs") if p.name != "NOTES.md"]
 

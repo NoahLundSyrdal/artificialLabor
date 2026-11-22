@@ -61,6 +61,9 @@ def build_parser() -> argparse.ArgumentParser:
         )
         cmd.add_argument("--workers", type=int, default=4, help="Ads processed in parallel.")
         cmd.add_argument("--max-attempts", type=int, help="Script attempts per job (default 3).")
+        cmd.add_argument(
+            "--fix-rounds", type=int, help="QA-driven fix rounds after a failed check (default 1)."
+        )
         cmd.add_argument("--timeout", type=int, help="Seconds per script run (default 180).")
         cmd.add_argument("--min-score", type=float, help="Feasibility threshold (default 0.6).")
         cmd.add_argument("--min-margin", type=float, help="Margin threshold (default 0.3).")
@@ -117,6 +120,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     for arg, attr in [
         ("max_attempts", "max_attempts"),
+        ("fix_rounds", "fix_rounds"),
         ("timeout", "script_timeout"),
         ("min_score", "min_feasibility"),
         ("min_margin", "min_margin"),

@@ -90,7 +90,24 @@ def process(
         )
         if record.execution.status == "succeeded":
             log.info("[%s] verifying", ad.id)
-            record.verification = stages.verify(llm, ad, job, workspace, timeout=s.script_timeout)
+            record.verification = qa = stages.verify(
+                llm, ad, job, workspace, timeout=s.script_timeout
+            )
+            record.qa_history.append(qa.score)
+            for _ in range(s.fix_rounds):
+                if qa.passed:
+                    break
+                log.info("[%s] QA failed (%.2f), fixing", ad.id, qa.score)
+                fixed = stages.revise(
+                    llm, ad, job, workspace, qa, max_attempts=s.max_attempts,
+                    timeout=s.script_timeout,
+                )  # fmt: skip
+                if fixed is None:
+                    record.qa_history.append(qa.score)
+                    continue
+                record.execution, qa = fixed
+                record.verification = qa
+                record.qa_history.append(qa.score)
     except Exception as e:  # one bad ad must not kill the run
         log.exception("[%s] failed", ad.id)
         record.error = f"{type(e).__name__}: {e}"

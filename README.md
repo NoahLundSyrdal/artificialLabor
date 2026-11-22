@@ -20,6 +20,7 @@ ad.md ──► parse ──► assess ──► economics ──► propose ─
 | propose | Writes a short client proposal with the computed bid. |
 | execute | The code model writes one Python script that reads `inputs/` and writes `outputs/`. It runs in a separate process with a timeout and no API keys in its environment. Errors are fed back for up to 3 attempts. |
 | verify | A QA pass sees the inputs, the script and previews of every output (images included) and checks each deliverable and acceptance criterion. |
+| fix | If QA fails, its findings go back to the code model for a corrected script, which is re-checked (`--fix-rounds`, default 1). The new delivery is kept only if it passes or scores higher. |
 
 ## Quick start
 
