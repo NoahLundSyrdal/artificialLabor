@@ -1,0 +1,11 @@
+{
+  "note": "The client has since attached the CSV (inputs/handles.csv). Column A is 'handle'.",
+  "expected_outputs": ["handles_cleaned.csv"],
+  "verification_criteria": [
+    "Every value in column A starts with exactly one '@'",
+    "No duplicate rows remain (13 input rows contain 2 exact duplicates -> 11 rows)",
+    "Rows are ordered by length of column A, shortest first",
+    "All other columns stay aligned with their row and special characters are untouched",
+    "Same column structure and header as the input"
+  ]
+}
