@@ -50,7 +50,8 @@ class Assessment(BaseModel):
         default_factory=list,
         description="Hard reasons an autonomous agent with Python cannot deliver this "
         "(needs physical/visual input it cannot get, account access, live calls, "
-        "ongoing human presence, ...). Empty if none.",
+        "ongoing human presence, ...). Missing client files are not a blocker (use "
+        "needs_client_files). Empty if none.",
     )
     risks: list[str] = []
     needs_client_files: bool = Field(
@@ -121,6 +122,9 @@ class JobRecord(BaseModel):
     economics: Economics | None = None
     decision: Decision | None = None
     proposal: str | None = None
+    synthetic_inputs: list[str] = Field(
+        default_factory=list, description="Sample input files generated in place of the client's"
+    )
     execution: Execution | None = None
     verification: Verification | None = None
     usage: Usage = Field(default_factory=Usage)
